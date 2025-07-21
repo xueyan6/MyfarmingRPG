@@ -1023,6 +1023,7 @@ GameObject:
   - component: {fileID: 631257855946991329}
   - component: {fileID: 8792359881803643890}
   - component: {fileID: 3995711468825031118}
+  - component: {fileID: 8792359881803643891}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1320,6 +1321,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c88a127edebc514f99dd888474f8043, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8792359881803643891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5875953014651263917}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d28fa39cb448b642acd24b5c08ba576, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputX: 1
+  inputY: 0
+  isWalking: 1
+  isRunning: 0
+  isIdle: 0
+  isCarrying: 0
+  toolEffect: 0
+  isUsingToolRight: 0
+  isUsingToolLeft: 0
+  isUsingToolUp: 0
+  isUsingToolDown: 0
+  isLiftingToolRigth: 0
+  isLiftingToolLeft: 0
+  isLiftingToolUp: 0
+  isLiftingToolDown: 0
+  isPickingRight: 0
+  isPickingLeft: 0
+  isPickingUp: 0
+  isPickingDown: 0
+  isSwingingToolRight: 0
+  isSwingingToolLeft: 0
+  isSwingingToolUp: 0
+  isSwingingToolDown: 0
+  idleUp: 0
+  idleDown: 0
+  idleRight: 0
+  idleLeft: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
