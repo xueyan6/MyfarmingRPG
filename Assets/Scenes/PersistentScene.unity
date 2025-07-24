@@ -132,6 +132,8 @@ GameObject:
   m_Component:
   - component: {fileID: 228801644}
   - component: {fileID: 228801643}
+  - component: {fileID: 228801646}
+  - component: {fileID: 228801645}
   m_Layer: 0
   m_Name: PlayerFollowVirtualCamera
   m_TagString: Untagged
@@ -194,6 +196,35 @@ Transform:
   - {fileID: 1000167770}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &228801645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 228801642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a822286a872475d44a72eaa7a7b6b49e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &228801646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 228801642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2fba25a5cd15594e8f050a11e386c80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ConfineMode: 0
+  m_BoundingVolume: {fileID: 0}
+  m_BoundingShape2D: {fileID: 0}
+  m_ConfineScreenEdges: 1
+  m_Damping: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -821,7 +852,7 @@ SortingGroup:
   m_Enabled: 1
   m_SortingLayerID: -1175952445
   m_SortingLayer: 6
-  m_SortingOrder: -1
+  m_SortingOrder: 0
   m_SortAtRoot: 0
 --- !u!1 &4062105394217262234
 GameObject:
@@ -1021,11 +1052,12 @@ GameObject:
   m_Component:
   - component: {fileID: 8792359881803643889}
   - component: {fileID: 631257855946991329}
+  - component: {fileID: 8792359881803643893}
+  - component: {fileID: 8792359881803643894}
   - component: {fileID: 8792359881803643890}
   - component: {fileID: 3995711468825031118}
   - component: {fileID: 8792359881803643891}
   - component: {fileID: 8792359881803643892}
-  - component: {fileID: 8792359881803643893}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1400,8 +1432,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1175952445
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1459,6 +1491,18 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.96, y: 0.13}
   m_EdgeRadius: 0
+--- !u!114 &8792359881803643894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5875953014651263917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 323551e6c044134439ea747d10ba1341, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
