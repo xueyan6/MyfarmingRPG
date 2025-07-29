@@ -10,8 +10,10 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
     [SerializeField]private SO_ItemList ItemList=null;
 
 
-    private void Start()
+    protected override void Awake()
     {
+        base.Awake();
+
         //Create item details dictionary
         CreateItemDetailsDictionary();
     }
