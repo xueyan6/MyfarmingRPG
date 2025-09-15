@@ -1,8 +1,8 @@
 public enum InventoryLocation
 {
-    player,
-    chest,
-    count
+    player,//物品在角色手里
+    chest,//物品在箱子里
+    count//枚举位置的计数，此处值为2，只要把count放在最后一位，自动进行计数
 }
 
 

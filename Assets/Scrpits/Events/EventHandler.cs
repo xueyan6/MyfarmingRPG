@@ -13,11 +13,14 @@ public delegate void MovementDelegate(float inputX, float inputY,bool isWalking,
 
 public static class EventHandler
 {
-    //Inventory Updated Event
+    //Inventory Updated Event库存更新事件
     public static event Action<InventoryLocation, List<InventoryItem>> InventoryUpdatedEvent;
     public static void CallInventoryUpdatedEvent(InventoryLocation inventoryLocation, List<InventoryItem> inventoryList)
     {
-        if(InventoryUpdatedEvent!=null) InventoryUpdatedEvent(inventoryLocation,inventoryList);
+        if (InventoryUpdatedEvent != null)//有订阅者
+        { 
+            InventoryUpdatedEvent(inventoryLocation, inventoryList); 
+        }
     }
 
     //Movement Event
