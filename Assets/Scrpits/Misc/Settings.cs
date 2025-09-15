@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class Settings 
 {
-    //Obscuring Item Fading-ObscuringItemFader
+    //Obscuring Item Fading-ObscuringItemFader遮蔽项淡出效果-遮蔽项淡出器
     public const float fadeInSeconds = 0.25f;
     public const float fadeOutSeconds = 0.35f;
     public const float tagetAlpha = 0.45f;
@@ -13,8 +13,12 @@ public static class Settings
     public const float runingSpeed = 5.333f;
     public const float walkingSpeed = 2.666f;
 
-    
-    //Player Animation Parameters
+    //Inventory
+    public static int playerInitialInventoryCapacity = 24;//玩家初始背包容量
+    public static int playerMaximumInventoryCapacity = 48;//玩家最大背包容量
+
+
+    //Player Animation Parameters玩家动画参数
     public static int xInput;
     public static int yInput;
     public static int isWalking;
@@ -38,17 +42,17 @@ public static class Settings
     public static int isPickingDown;
 
 
-    //Shared Animation Parameters
+    //Shared Animation Parameters共享动画参数
     public static int idleUp;
     public static int idleDown;
     public static int idleLeft;
     public static int idleRight;
 
 
-    //static constructor
+    //static constructor静态构造函数
     static Settings()
     {
-        //Player Animation Parameters
+        //Player Animation Parameters玩家动画参数
         xInput = Animator.StringToHash("xInput");
         yInput = Animator.StringToHash("yInput");
         isWalking = Animator.StringToHash("isWalking");
@@ -71,7 +75,7 @@ public static class Settings
         isPickingUp = Animator.StringToHash("isPickingUp");
         isPickingDown = Animator.StringToHash("isPickingDown");
 
-        //Shared Animation Parameters
+        //Shared Animation Parameters共享动画参数
         idleUp = Animator.StringToHash("idleUp");
         idleDown = Animator.StringToHash("idleDown");
         idleLeft = Animator.StringToHash("idleLeft");
