@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEditor.Progress;
 
 public class InventoryManager : SingletonMonobehaviour<InventoryManager>
@@ -44,7 +45,7 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         inventoryListCapacityIntArray[(int)InventoryLocation.player] = Settings.playerInitialInventoryCapacity;
     }
 
-    //Populates the itemPetailsDictionary from the scriptable object items list从可编程对象项目列表中填充itemPetailsDictionary
+    //Populates the itemDetailsDictionary from the scriptable object items list从可编程对象项目列表中填充项目详情词典
     private void CreateItemDetailsDictionary()
     {
         itemDetailsDictionary = new Dictionary<int,ItemDetails>();
@@ -151,6 +152,48 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
             return null;
         }
     }
+
+    //Remove an item from the inventory, and create a game object at the position it was dropped从库存中移除一个物品，并在其被丢弃的位置创建一个游戏对象
+    public void RemoveItem(InventoryLocation inventoryLocation, int itemCode)
+    {
+        List<InventoryItem> inventoryList = inventoryLists[(int)inventoryLocation];//在inventoryLists的集合中根据inventoryLocation指定的位置获取对应的物品列表
+
+        // Check if inventory already contains the item检查物品是否已存在于背包中
+        int itemPosition = FindItemInInventory(inventoryLocation, itemCode);
+
+        if(itemPosition != -1)
+        {
+            RemoveItemAtPosition(inventoryList,itemCode, itemPosition);
+        }
+        //FindItemInInventory 方法用于在背包中查找指定物品的位置，若存在则返回索引，否则返回-1。
+        //若找到物品（itemPosition != -1），则调用 RemoveItemAtPosition 执行移除。
+
+        //Send event that inventory has been updated发送库存已更新的事件
+        EventHandler.CallInventoryUpdatedEvent(inventoryLocation, inventoryLists[(int)inventoryLocation]);
+        //移除操作完成后，通过 EventHandler.CallInventoryUpdatedEvent 触发背包更新事件，通知其他系统同步数据。
+    }
+
+    private void RemoveItemAtPosition(List<InventoryItem> inventoryList, int itemCode, int position)
+    {
+        InventoryItem inventoryItem = new InventoryItem();
+
+        int quantity = inventoryList[position].itemQuantity - 1;
+
+        if (quantity > 0)
+        {
+            inventoryItem.itemQuantity = quantity;
+            inventoryItem.itemCode = itemCode;
+            inventoryList[position] = inventoryItem;
+        }
+        //若物品剩余数量大于1，仅更新数量（inventoryItem.itemQuantity = quantity）
+
+        else
+        {
+            inventoryList.RemoveAt(position);
+        }
+        //若数量减至0或以下，则从列表中彻底删除该物品（inventoryList.RemoveAt(position)）。
+    }
+
 
     //private void DebugPrintInventoryList(List<InventoryItem> inventoryList)
     //{
