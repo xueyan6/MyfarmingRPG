@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Player : SingletonMonobehaviour<Player>
 {
-    //Movement Parameters
+    //Movement Parameters运动参数
     private float xInput;
     private float yInput;
     private bool isCarrying = false;
@@ -39,7 +39,7 @@ public class Player : SingletonMonobehaviour<Player>
     private float MovementSpeed;
 
     private bool _playerInputIsDisable = false;
-    public bool PlayerInputIsEnable
+    public bool PlayerInputIsDisabled
     {
         get => _playerInputIsDisable; set => _playerInputIsDisable = value;
     }
@@ -56,12 +56,15 @@ public class Player : SingletonMonobehaviour<Player>
     private void Update()
     {
         #region Player Input
-
+        if (!PlayerInputIsDisabled)
+        {
         ResetAnimationTrigger();
+
         PlayerMovementInput();
+
         PlayerWalkInput();
 
-        //Send event to any listeners for player movement input
+        //Send event to any listeners for player movement input向任何监听器发送事件以获取玩家移动输入
         EventHandler.CallMovementEvent(xInput, yInput,
                 isWalking, isRunning, isIdle, isCarrying,
                 toolEffect,
@@ -70,7 +73,7 @@ public class Player : SingletonMonobehaviour<Player>
                 isPickingRight, isPickingLeft, isPickingUp, isPickingDown,
                 isSwingingToolRight, isSwingingToolLeft, isSwingingToolUp, isSwingingToolDown
                 , false, false, false, false);
-
+        }
         #endregion
     }
 
@@ -124,7 +127,7 @@ public class Player : SingletonMonobehaviour<Player>
             isIdle = false;
             MovementSpeed = Settings.runingSpeed;
 
-            //Capture player direction for save game
+            //Capture player direction for save game记录玩家方向用于存档
             if (xInput < 0)
             {
                 PlayerDirection = Direction.Left;
@@ -166,6 +169,43 @@ public class Player : SingletonMonobehaviour<Player>
             isIdle = false;
             MovementSpeed = Settings.runingSpeed;
         }
+    }
+
+    private void ResetMovement()
+    {
+        //Reset movement
+        xInput = 0f; 
+        yInput = 0f;
+        isRunning = false;
+        isWalking = false;
+        isIdle = false;
+    }
+
+    public void DisablePlayerInputAndResetMovement()
+    {
+        DisablePlayerInput();
+        ResetMovement();
+
+        // Send event to any listeners for player movement input将玩家移动输入事件发送给所有监听器
+        EventHandler.CallMovementEvent(xInput, yInput,
+        isWalking, isRunning, isIdle, isCarrying,
+        toolEffect,
+        isUsingToolRight, isUsingToolLeft, isUsingToolUp, isUsingToolDown,
+        isLiftingToolRight, isLiftingToolLeft, isLiftingToolUp, isLiftingToolDown,
+        isPickingRight, isPickingLeft, isPickingUp, isPickingDown,
+        isSwingingToolRight, isSwingingToolLeft, isSwingingToolUp, isSwingingToolDown
+        , false, false, false, false);
+    }
+
+
+    public void DisablePlayerInput()
+    {
+        PlayerInputIsDisabled = true;
+    }
+
+    public void EnablePlayerInput()
+    {
+        PlayerInputIsDisabled=false;
     }
 
     public Vector3 GetPlayerViewportPosition()

@@ -7,6 +7,7 @@ public class UIInventoryBar : MonoBehaviour
 {
     [SerializeField] private Sprite blank16x16sprite = null;
     [SerializeField] private UIInventorySlot[] inventorySlot = null;
+    public GameObject inventoryBarDraggedItem;//库存条拖动项
 
 
 
@@ -150,7 +151,7 @@ public class UIInventoryBar : MonoBehaviour
             rectTransform.pivot = new Vector2(0.5f, 0f);
             rectTransform.anchorMin = new Vector2(0.5f, 0f);
             rectTransform.anchorMax = new Vector2(0.5f, 0f);
-            rectTransform.anchoredPosition = new Vector2(0f, 24f);
+            rectTransform.anchoredPosition = new Vector2(0f, 2.5f);
 
             IsInventoryBarPositionBottom = true;
         }
@@ -160,7 +161,7 @@ public class UIInventoryBar : MonoBehaviour
             rectTransform.pivot = new Vector2(0.5f, 1f);
             rectTransform.anchorMin = new Vector2(0.5f, 1f);
             rectTransform.anchorMax = new Vector2(0.5f, 1f);
-            rectTransform.anchoredPosition = new Vector2(0f, -24f);
+            rectTransform.anchoredPosition = new Vector2(0f, -2.5f);
 
             IsInventoryBarPositionBottom = false;
         }
