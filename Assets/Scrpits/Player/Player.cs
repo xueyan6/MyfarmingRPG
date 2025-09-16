@@ -27,6 +27,9 @@ public class Player : SingletonMonobehaviour<Player>
     private bool isPickingLeft;
     private bool isPickingUp;
     private bool isPickingDown;
+
+    private Camera mainCamera;
+
     private ToolEffect toolEffect = ToolEffect.None;
 
     private Rigidbody2D Rigidbody2D;
@@ -45,6 +48,9 @@ public class Player : SingletonMonobehaviour<Player>
     {
         base.Awake();
         Rigidbody2D = GetComponent<Rigidbody2D>();
+
+        //get reference to main camera获取主摄像头的引用
+        mainCamera = Camera.main;
     }
 
     private void Update()
@@ -58,12 +64,12 @@ public class Player : SingletonMonobehaviour<Player>
         //Send event to any listeners for player movement input
         EventHandler.CallMovementEvent(xInput, yInput,
                 isWalking, isRunning, isIdle, isCarrying,
-                toolEffect, 
+                toolEffect,
                 isUsingToolRight, isUsingToolLeft, isUsingToolUp, isUsingToolDown,
                 isLiftingToolRight, isLiftingToolLeft, isLiftingToolUp, isLiftingToolDown,
                 isPickingRight, isPickingLeft, isPickingUp, isPickingDown,
                 isSwingingToolRight, isSwingingToolLeft, isSwingingToolUp, isSwingingToolDown
-                ,false,false,false,false);
+                , false, false, false, false);
 
         #endregion
     }
@@ -75,7 +81,7 @@ public class Player : SingletonMonobehaviour<Player>
 
     private void PlayerMovement()
     {
-        Vector2 move=new Vector2(xInput*MovementSpeed*Time.deltaTime,yInput*MovementSpeed*Time.deltaTime);
+        Vector2 move = new Vector2(xInput * MovementSpeed * Time.deltaTime, yInput * MovementSpeed * Time.deltaTime);
         Rigidbody2D.MovePosition(Rigidbody2D.position + move);
     }
 
@@ -107,11 +113,11 @@ public class Player : SingletonMonobehaviour<Player>
 
         if (yInput != 0 && xInput != 0)
         {
-            xInput =xInput * 0.71f;
+            xInput = xInput * 0.71f;
             yInput = yInput * 0.71f;
         }
 
-        if(xInput != 0 ||yInput != 0)
+        if (xInput != 0 || yInput != 0)
         {
             isRunning = true;
             isWalking = false;
@@ -121,37 +127,37 @@ public class Player : SingletonMonobehaviour<Player>
             //Capture player direction for save game
             if (xInput < 0)
             {
-                PlayerDirection=Direction.Left;
+                PlayerDirection = Direction.Left;
             }
-            else if (xInput >0)
+            else if (xInput > 0)
             {
-                PlayerDirection=Direction.Right;
+                PlayerDirection = Direction.Right;
             }
             else if (yInput < 0)
             {
-                PlayerDirection=Direction.Down;
+                PlayerDirection = Direction.Down;
             }
-            else 
+            else
             {
-                PlayerDirection=Direction.Up;
+                PlayerDirection = Direction.Up;
             }
         }
-        else if(xInput==0 &&yInput==0)
+        else if (xInput == 0 && yInput == 0)
         {
-            isRunning=false;
-            isWalking=false;
-            isIdle=true;
+            isRunning = false;
+            isWalking = false;
+            isIdle = true;
         }
     }
 
     private void PlayerWalkInput()
     {
-        if(Input.GetKey(KeyCode.LeftShift)||Input.GetKey(KeyCode.RightShift))
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
-            isRunning=false ;
-            isWalking=true;
+            isRunning = false;
+            isWalking = true;
             isIdle = false;
-            MovementSpeed=Settings.walkingSpeed;
+            MovementSpeed = Settings.walkingSpeed;
         }
         else
         {
@@ -162,5 +168,11 @@ public class Player : SingletonMonobehaviour<Player>
         }
     }
 
+    public Vector3 GetPlayerViewportPosition()
+    {
+      //Vector3 viewport  position for player ((0,0) viewport bottom left, (1,1) viewport top right
+      //Vector3 玩家视口位置（(0,0) 为视口左下角，(1,1) 为视口右上角）
+      return mainCamera.WorldToViewportPoint(transform.position);
+    }
 
 }

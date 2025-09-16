@@ -97,7 +97,7 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         inventoryItem.itemQuantity = 1;
         inventoryList.Add(inventoryItem);
 
-        DebugPrintInventoryList(inventoryList);
+        //DebugPrintInventoryList(inventoryList);
     }
 
     //Add item to position in the inventory将物品添加至背包中的指定位置
@@ -111,7 +111,7 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         inventoryItem.itemCode = itemCode;
         inventoryList[position] = inventoryItem;
 
-        DebugPrintInventoryList(inventoryList);
+        //DebugPrintInventoryList(inventoryList);
     }
 
 
@@ -152,14 +152,15 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         }
     }
 
-    private void DebugPrintInventoryList(List<InventoryItem> inventoryList)
-    {
-        foreach (InventoryItem inventoryItem in inventoryList)
-        { 
-            Debug.Log("Item Description:" + InventoryManager.Instance.GetItemDetails(inventoryItem.itemCode).itemDescription + " Item Quantity: " + inventoryItem.itemQuantity); 
-        }
-        Debug.Log("*******************************************************"); 
-    }
+    //private void DebugPrintInventoryList(List<InventoryItem> inventoryList)
+    //{
+    //    foreach (InventoryItem inventoryItem in inventoryList)
+    //    { 
+    //        Debug.Log("Item Description:" + InventoryManager.Instance.GetItemDetails(inventoryItem.itemCode).itemDescription + " Item Quantity: " + inventoryItem.itemQuantity); 
+    //    }
+    //    Debug.Log("*******************************************************"); 
+    //}
+    //批量注释 ctrl+K+C 解除 ctrl+K+U
 }
 
 
