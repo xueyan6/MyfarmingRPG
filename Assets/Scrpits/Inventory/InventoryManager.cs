@@ -11,7 +11,8 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
     public List<InventoryItem>[]inventoryLists;//此为二维数组，记录了每个位置（玩家身上、箱子）的库存list情况
 
     [HideInInspector]public int [] inventoryListCapacityIntArray;//每个位置库存的item上限数量
-    // the index of the array is the inventory list (from the InventoryLocation enum), and the value is the capacity of that inventory list数组的索引是库存列表（来自InventoryLocation枚举），其值是该库存列表的容量。
+    // the index of the array is the inventory list (from the InventoryLocation enum), and the value is the capacity of that inventory list
+    // 数组的索引是库存列表（来自InventoryLocation枚举），其值是该库存列表的容量。
 
     [SerializeField]private SO_ItemList ItemList=null;
 
@@ -21,7 +22,6 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         base.Awake();
 
         //Create Inventory Lists创建库存清单
-
         CreateInventoryLists();
 
         //Create item details dictionary创建项目详情字典
@@ -115,6 +115,29 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         //DebugPrintInventoryList(inventoryList);
     }
 
+    //Swap item at fromItem index with item at toltem index in inventoryLocation inventory list
+    //在库存位置 inventory 的库存列表中，将 fromItem 索引处的物品与 toltem 索引处的物品进行交换
+    public void SwapInventoryItems(InventoryLocation inventoryLocation, int fromItem, int toItem)
+    {
+        //if fromItem index and toItem Index are within the bounds of the list, not the same,and greater than or equal to zero
+        //如果 fromItem 索引和 toItem 索引都在列表范围内，且不相同，且大于等于零
+        if (fromItem < inventoryLists[(int)inventoryLocation].Count && toItem < inventoryLists[(int)inventoryLocation].Count && fromItem != toItem && fromItem >= 0 && toItem >= 0)
+        {
+            InventoryItem fromInventoryItem = inventoryLists[(int)inventoryLocation][fromItem];
+            InventoryItem toInventoryItem = inventoryLists[(int)inventoryLocation][toItem];
+            inventoryLists[(int)inventoryLocation][toItem] = fromInventoryItem;
+            inventoryLists[(int)inventoryLocation][fromItem] = toInventoryItem;
+            //物品交换
+
+            // Send event that inventory has been updated 发送库存更新事件 
+            EventHandler.CallInventoryUpdatedEvent(inventoryLocation, inventoryLists[(int)inventoryLocation]);
+            //通过EventHandler.CallInventoryUpdatedEvent广播库存变更，让UI显示能够立刻更新。
+        }
+    }
+    //检查fromItem和toItem是否在库存列表有效范围内（< inventoryLists.Count）
+    //确保两个索引不相同（fromItem != toItem）
+
+
 
     //Find if an itemCode is already in the inventory. Returns the item position in the inventory list, or -1 if the item is not in the inventory
     //检查物品代码是否已存在于库存中。若物品存在则返回该物品在库存列表中的位置，若物品不存在则返回-1。
@@ -151,6 +174,44 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         {
             return null;
         }
+    }
+
+    //Get the item type description for an item type - returns the item type description as a string for a given ItemType
+    //获取项类型的描述 - 返回指定项类型的描述（以字符串形式）
+    public string GetItemTypeDescription(ItemType itemType)
+    {
+        string itemTypeDescription;
+        switch (itemType)
+        {
+            case ItemType.Breaking_tool:
+            itemTypeDescription = Settings.BreakingTool;
+            break;
+
+            case ItemType.Chopping_tool:
+            itemTypeDescription = Settings.ChoppingTool;
+            break;
+
+            case ItemType.Hoeing_tool:
+            itemTypeDescription = Settings.HoeingTool;
+            break;
+
+            case ItemType.Reaping_tool:
+            itemTypeDescription = Settings.ReapingTool;
+            break;
+
+            case ItemType.Watering_tool:
+            itemTypeDescription = Settings.WateringTool;
+            break;
+
+            case ItemType.Collecting_tool:
+            itemTypeDescription = Settings.CollectingTool;
+            break;
+
+            default:
+            itemTypeDescription = itemType.ToString();
+            break;
+        }
+        return itemTypeDescription;
     }
 
     //Remove an item from the inventory, and create a game object at the position it was dropped从库存中移除一个物品，并在其被丢弃的位置创建一个游戏对象
