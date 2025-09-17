@@ -35,8 +35,8 @@ public class Item : MonoBehaviour
 
             spriteRenderer.sprite = itemDetails.itemSprite;
 
-            //if item type is reapable then add nudgeable component
-            if(itemDetails.itemType==ItemType.Reapable_scenary)
+            //if item type is reapable then add nudgeable component如果项目类型为可收割，则添加可推动组件
+            if (itemDetails.itemType==ItemType.Reapable_scenary)
             {
                 gameObject.AddComponent<ItemNudge>();
             }
