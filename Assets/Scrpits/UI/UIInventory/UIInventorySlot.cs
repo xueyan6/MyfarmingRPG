@@ -146,11 +146,11 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             }
             else
             {
-                inventoryBar.inventoryTextBoxGameobject.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0f);
-                inventoryBar.inventoryTextBoxGameobject.transform.position = new Vector3(transform.position.x, transform.position.y - 250f, transform.position.z);
+                inventoryBar.inventoryTextBoxGameobject.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 1f);
+                inventoryBar.inventoryTextBoxGameobject.transform.position = new Vector3(transform.position.x, transform.position.y - 50f, transform.position.z);
                 //y轴动态偏移50像素，能有效防止文本框遮挡当前悬停的UI元素或相邻交互区域，确保用户始终可见完整信息；
                 //可兼容物品栏在屏幕顶部或底部的场景。这种设计保证文本框始终出现在物品栏的"外侧"，符合用户对提示框位置的心理预期
-                Debug.Log("完成");
+                
             }
             
         }
