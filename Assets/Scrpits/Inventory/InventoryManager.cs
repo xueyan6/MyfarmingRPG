@@ -8,6 +8,8 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
 {
     private Dictionary<int,ItemDetails> itemDetailsDictionary;
 
+    private int[] selectedInventoryItem;// the index of the array is the inventory list, and the value is the item code,数组的索引是库存清单，其值是物品代码。
+
     public List<InventoryItem>[]inventoryLists;//此为二维数组，记录了每个位置（玩家身上、箱子）的库存list情况
 
     [HideInInspector]public int [] inventoryListCapacityIntArray;//每个位置库存的item上限数量
@@ -26,6 +28,16 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
 
         //Create item details dictionary创建项目详情字典
         CreateItemDetailsDictionary();
+
+
+        // Initialize selected inventory item array初始化选定库存项目数组
+        selectedInventoryItem = new int[(int)InventoryLocation.count];
+
+        for (int i = 0; i < selectedInventoryItem.Length; i++)
+        {
+            selectedInventoryItem[i] = -1;
+        }
+
     }
 
     private void CreateInventoryLists()
@@ -137,6 +149,12 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
     //检查fromItem和toItem是否在库存列表有效范围内（< inventoryLists.Count）
     //确保两个索引不相同（fromItem != toItem）
 
+    // Clear the selected inventory item for inventoryLocation清除所选库存项在库存位置的库存
+    public void ClearSelectedInventoryItem(InventoryLocation inventoryLocation)
+    {
+        selectedInventoryItem[(int)inventoryLocation] = -1;
+
+    }
 
 
     //Find if an itemCode is already in the inventory. Returns the item position in the inventory list, or -1 if the item is not in the inventory
@@ -254,6 +272,17 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         }
         //若数量减至0或以下，则从列表中彻底删除该物品（inventoryList.RemoveAt(position)）。
     }
+
+
+
+    // Set the selected inventory item for inventoryLocation to itemCode将选定的库存项目设置为库存位置的项目代码
+    public void SetSelectedInventoryItem(InventoryLocation inventoryLocation, int itemCode)
+    {
+        selectedInventoryItem[(int)inventoryLocation] = itemCode;
+    }
+
+
+
 
 
     //private void DebugPrintInventoryList(List<InventoryItem> inventoryList)
