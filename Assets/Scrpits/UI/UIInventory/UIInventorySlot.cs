@@ -51,6 +51,18 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         // Set item selected in inventory在物品栏中选定装备
         InventoryManager.Instance.SetSelectedInventoryItem(InventoryLocation.player, itemDetails.itemCode);
+
+
+        if (itemDetails.canBeCarried == true)
+        {
+            // Show player carrying item显示玩家携带的物品
+            Player.Instance.ShowCarriedItem(itemDetails.itemCode);
+        }
+        else
+        {
+            Player.Instance.ClearCarriedItem();
+        }
+
     }
 
     private void ClearSelectedItem()
@@ -62,6 +74,9 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         // set no item selected in inventory在物品栏中未选择任何物品
         InventoryManager.Instance.ClearSelectedInventoryItem(InventoryLocation.player);
+
+        // Clear player carrying item清除玩家携带物品
+        Player.Instance.ClearCarriedItem();
     }
 
 
