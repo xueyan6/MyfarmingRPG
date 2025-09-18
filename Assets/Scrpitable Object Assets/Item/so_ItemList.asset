@@ -15,10 +15,10 @@ MonoBehaviour:
   itemDetails:
   - itemCode: 10000
     itemType: 0
-    itemDescription: Canyon Oak Acom
+    itemDescription: Canyon Oak Acorn
     itemSprite: {fileID: 21300000, guid: 730e572c78cf0244ca0db36bb8f3af7f, type: 3}
-    itemLongDescription: From small acoms do large oak trees grow.One day this humble
-      acom could be a towering giant
+    itemLongDescription: From small acorns do large oak trees grow.One day this humble
+      acorn could be a towering giant
     itemUseGridRadius: 2
     itemUseRadius: 0
     isStaringItem: 0
@@ -226,7 +226,7 @@ MonoBehaviour:
   - itemCode: 10017
     itemType: 6
     itemDescription: A Basic Scythe For Reaping
-    itemSprite: {fileID: 0}
+    itemSprite: {fileID: 21300506, guid: 853ac38383c680342ac7e688bf29b197, type: 3}
     itemLongDescription: A sharp, basic scythe - great for cutting grass
     itemUseGridRadius: 2
     itemUseRadius: 1.5
