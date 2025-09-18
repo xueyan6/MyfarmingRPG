@@ -40,6 +40,29 @@ public class UIInventoryBar : MonoBehaviour
         SwitchInventoryBarPosition();
     }
 
+    public void ClearHighlightOnInventorySlots()
+    {
+
+        if (inventorySlot.Length > 0)
+
+        {
+            // loop through inventory slots and clear highlight sprites 遍历库存槽位并清除高亮精灵 
+            for (int i = 0; i < inventorySlot.Length; i++)
+            {
+                if (inventorySlot[i].isSelected)
+                {
+                    inventorySlot[i].isSelected = false;
+                    inventorySlot[i].inventorySlotHighlight.color = new Color(0f, 0f, 0f, 0f);
+
+                    // Update inventory to show item as not selected 更新库存以显示该物品未被选中 
+                    InventoryManager.Instance.ClearSelectedInventoryItem(InventoryLocation.player);
+                }
+            }
+        }
+    }
+
+
+
     private void ClearInventorySlots()
     {
         if (inventorySlot.Length > 0)
@@ -52,6 +75,7 @@ public class UIInventoryBar : MonoBehaviour
                 inventorySlot[i].textMeshProUGUI.text = "";
                 inventorySlot[i].itemDetails = null;
                 inventorySlot[i].itemQuantity = 0;
+                SetHighlightedInventorySlots(i);
             }
         }
     }
@@ -82,6 +106,7 @@ public class UIInventoryBar : MonoBehaviour
                             inventorySlot[i].textMeshProUGUI.text = inventoryList[i].itemQuantity.ToString();
                             inventorySlot[i].itemDetails = itemDetails;
                             inventorySlot[i].itemQuantity = inventoryList[i].itemQuantity;
+                            SetHighlightedInventorySlots(i);
                         }
                     }
                     else
@@ -141,6 +166,39 @@ public class UIInventoryBar : MonoBehaviour
     //遍历物品栏格位和库存列表
     //通过物品代码(itemCode)查询物品详情
     //更新格位的贴图、数量显示和数据引用
+
+
+    /// <summary>
+    /// Set the selected highlight if set on all inventory item positions若所有物品栏位置均已设置，则为选定物品设置高亮效果
+    /// </summary>
+    public void SetHighlightedInventorySlots()
+    {
+        if (inventorySlot.Length > 0)
+        {
+            // loop through inventory slots and set highlight sprites
+            for (int i = 0; i < inventorySlot.Length; i++)
+            {
+                SetHighlightedInventorySlots(i);
+            }
+        }
+    }
+
+
+    // Set the selected highlight if set on an inventory item for a given slot item position若在指定槽位物品位置上设置了库存物品，则设置所选高亮效果
+    public void SetHighlightedInventorySlots(int itemPosition)
+    {
+        if (inventorySlot.Length > 0 && inventorySlot[itemPosition].itemDetails != null)
+        {
+            if (inventorySlot[itemPosition].isSelected)
+            {
+                inventorySlot[itemPosition].inventorySlotHighlight.color = new Color(1f, 1f, 1f, 1f);
+
+                // Update inventory to show item as selected更新库存以显示该商品已被选中
+                InventoryManager.Instance.SetSelectedInventoryItem(InventoryLocation.player, inventorySlot[itemPosition].itemDetails.itemCode);
+            }
+        }
+    }
+
 
     private void SwitchInventoryBarPosition()
     {
