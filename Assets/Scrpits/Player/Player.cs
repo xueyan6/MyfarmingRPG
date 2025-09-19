@@ -85,6 +85,8 @@ public class Player : SingletonMonobehaviour<Player>
 
         PlayerWalkInput();
 
+        PlayerTestInput();
+
         //Send event to any listeners for player movement input向任何监听器发送事件以获取玩家移动输入
         EventHandler.CallMovementEvent(xInput, yInput,
                 isWalking, isRunning, isIdle, isCarrying,
@@ -192,7 +194,24 @@ public class Player : SingletonMonobehaviour<Player>
         }
     }
 
-    private void ResetMovement()
+
+    // Temp routine for test input
+    private void PlayerTestInput()
+    {
+        // Trigger Advance Time触发提前时间
+        if (Input.GetKey(KeyCode.T))
+        {
+            TimeManager.Instance.TestAdvanceGameMinute();
+        }
+
+        // Trigger Advance Day
+        if (Input.GetKey(KeyCode.G))
+        {
+            TimeManager.Instance.TestAdvanceGameDay();
+        }
+
+    }
+        private void ResetMovement()
     {
         //Reset movement
         xInput = 0f; 

@@ -74,6 +74,16 @@ public enum InventoryLocation
     count//枚举位置的计数，此处值为2，只要把count放在最后一位，自动进行计数
 }
 
+public enum Season
+{
+    Spring,
+    Summer,
+    Autumn,
+    Winter,
+    none,
+    count
+}
+
 
 public enum ToolEffect
 {
