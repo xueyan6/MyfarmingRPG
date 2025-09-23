@@ -1,15 +1,21 @@
-
+using UnityEngine.SceneManagement;
 using UnityEngine;
 using Cinemachine;
 using System;
 
 public class SwitchConfineBoundingShape : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    //元素获取基于同样的理由，需要在场景确认加载完毕后才能去获取
+    private void OnEnable()
     {
-        SwitchBoundingShape();
+        EventHandler.AfterSceneLoadEvent += SwitchBoundingShape;
     }
+
+    private void OnDisable()
+    {
+        EventHandler.AfterSceneLoadEvent -= SwitchBoundingShape;
+    }
+
 
     /// <summary>
     /// Switch the collider that cinemachine uses to define the edges of the screen

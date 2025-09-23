@@ -1,7 +1,9 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
 
 public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler,IPointerClickHandler
 {
@@ -22,15 +24,28 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     [HideInInspector] public int itemQuantity;
     [SerializeField] private int slotNumber = 0;
 
+
     private void Awake()
     {
         parentCanvas= GetComponentInParent<Canvas>();
     }
 
+    //在切换场景的过程中，我们并不能总是找到他们（FindGameObjectWithTag）。因为场景加载需要时间，可能场景还没加载完成就在取值了
+    //所以需要订阅加载完成的事件，在事件中处理元素的获取。
+    private void OnDisable()
+    {
+        EventHandler.AfterSceneLoadEvent -= SceneLoaded;
+    }
+
+    private void OnEnable()
+    {
+        EventHandler.AfterSceneLoadEvent += SceneLoaded;
+    }
+
+
     private void Start()
     {
         mainCamera = Camera.main;
-        parentItem = GameObject.FindGameObjectWithTag(Tags.ItemsParentTransform).transform;
     }
     //获取主相机和物品父对象引用
     //为后续的屏幕坐标转换和物品生成做准备
@@ -250,4 +265,13 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             Destroy(inventoryBar.inventoryTextBoxGameobject);
         }
     }
+
+    public void SceneLoaded()
+    {
+        parentItem = GameObject.FindGameObjectWithTag(Tags.ItemsParentTransform).transform;
+    }
+    
 }
+
+
+
