@@ -194,6 +194,33 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         }
     }
 
+
+
+    // Returns the itemDetails（from the SO_ItemList）for the currently selected item in the inventoryLocation,or null if an item isn't selected
+    // 返回当前在库存位置中选定物品的物品详情（来自SO_ItemList），若未选定物品则返回null。
+    public ItemDetails GetSelectedInventoryItemDetails(InventoryLocation inventoryLocation)
+    {
+        int itemCode = GetSelectedInventoryItem(inventoryLocation);
+
+        if (itemCode == -1)
+        {
+            return null;
+        }
+        else
+        {
+            return GetItemDetails(itemCode);
+        }
+
+    }
+
+        //Get the selected item for inventoryLocation - returns itemCode or -1 if nothing is selected
+        //获取库存位置的选定商品 - 返回商品代码，若未选中则返回-1
+        private int GetSelectedInventoryItem(InventoryLocation inventoryLocation)
+        {
+        return selectedInventoryItem[(int)inventoryLocation];
+        }
+
+
     //Get the item type description for an item type - returns the item type description as a string for a given ItemType
     //获取项类型的描述 - 返回指定项类型的描述（以字符串形式）
     public string GetItemTypeDescription(ItemType itemType)

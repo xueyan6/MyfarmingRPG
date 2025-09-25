@@ -81,13 +81,13 @@ public class SceneItemsManager : SingletonMonobehaviour<SceneItemsManager>, ISav
     {
         if (GameObjectSave.sceneData.TryGetValue(sceneName, out SceneSave sceneSave))// 尝试获取指定场景存档
         {
-            if (sceneSave.listSceneItemDictionary != null && sceneSave.listSceneItemDictionary.TryGetValue("sceneItemList", out List<SceneItem> sceneItemList))// 检查并获取物品列表数据
+            if (sceneSave.listSceneItem != null )// 检查并获取物品列表数据
             {
                 // scene list items found - destroy existing items in scene清理现有物品
                 DestroySceneItems();
 
                 // new instantiate the list of scene items根据存档恢复物品
-                InstantiateSceneItems(sceneItemList);
+                InstantiateSceneItems(sceneSave.listSceneItem);
             }
         }
     }
@@ -119,10 +119,9 @@ public class SceneItemsManager : SingletonMonobehaviour<SceneItemsManager>, ISav
             sceneItemList.Add(sceneItem);
         }
 
-        // Create list scene items dictionary in scene save and add to it在场景保存时创建场景项目字典并向其中添加内容
+        // Create list scene items in scene save and set to scene item list 在场景保存中创建场景列表项并设置为场景项列表
         SceneSave sceneSave = new SceneSave();// 创建场景存档数据
-        sceneSave.listSceneItemDictionary = new Dictionary<string, List<SceneItem>>();// 初始化字典容器
-        sceneSave.listSceneItemDictionary.Add("sceneItemList", sceneItemList);// 添加物品列表数据
+        sceneSave.listSceneItem= sceneItemList;
 
         // Add scene save to gameobject为游戏对象添加场景保存功能
         GameObjectSave.sceneData.Add(sceneName, sceneSave);// 保存到全局存档

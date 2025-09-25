@@ -10,6 +10,7 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private Camera mainCamera;
     private Canvas parentCanvas;
     private Transform parentItem;
+    private GridCursor gridCursor;
     private GameObject draggedItem;
 
     public Image inventorySlotHighlight;
@@ -46,14 +47,23 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private void Start()
     {
         mainCamera = Camera.main;
+        gridCursor = FindObjectOfType<GridCursor>();
     }
     //获取主相机和物品父对象引用
     //为后续的屏幕坐标转换和物品生成做准备
 
+    private void ClearCursors()
+    {
+        // Disable cursor禁用光标
+        gridCursor.DisableCursor();
 
+        // Set item type to none将道具类型设置为无
+        gridCursor.SelectedItemType = ItemType.none;
 
-    // Set this inventory slot item to be selected将此库存槽位物品设为选中状态
-    private void SetSelectedItem()
+    }
+
+        // Set this inventory slot item to be selected将此库存槽位物品设为选中状态
+        private void SetSelectedItem()
     {
         // Clear currently highlighted items清除当前选中的项目
         inventoryBar.ClearHighlightOnInventorySlots();
@@ -63,6 +73,24 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         // Set highlighted inventory slots设置高亮库存槽位
         inventoryBar.SetHighlightedInventorySlots();
+
+
+        // Set use radius for cursors 设置光标使用半径 
+        gridCursor.ItemUseGridRadius = itemDetails.itemUseGridRadius;
+
+        // If item requires a grid cursor then enable cursor如果项目需要网格光标，则启用光标
+        if (itemDetails.itemUseGridRadius > 0)
+        {
+            gridCursor.EnableCursor();
+        }
+        else
+        {
+            gridCursor.DisableCursor();
+        }
+
+        // Set item type设置道具类型
+        gridCursor.SelectedItemType = itemDetails.itemType;
+
 
         // Set item selected in inventory在物品栏中选定装备
         InventoryManager.Instance.SetSelectedInventoryItem(InventoryLocation.player, itemDetails.itemCode);
@@ -82,6 +110,8 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     private void ClearSelectedItem()
     {
+        ClearCursors();
+
         // Clear currently highlighted item清除当前选中的项目
         inventoryBar.ClearHighlightOnInventorySlots();
 
@@ -97,28 +127,37 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         //Drops the item (if selected) at the current mouse position. Called by the DropItem event.在当前鼠标位置丢弃该项目（若已选中）。由DropItem事件调用。
         private void DropSelectedItemAtMousePosition()
-    {
-        if(itemDetails != null && isSelected)
         {
-            Vector3 worldPosition = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -mainCamera.transform.position.z));
-
-            // Create item from prefab at mouse position在鼠标位置处从预制件创建物品
-            GameObject itemGameObject = Instantiate(itemPrefab, worldPosition, Quaternion.identity, parentItem);
-            Item item = itemGameObject.GetComponent<Item>();
-            item.ItemCode = itemDetails.itemCode;
-
-            //Remove item from players inventory从玩家背包中移除物品
-            InventoryManager.Instance.RemoveItem(InventoryLocation.player, item.ItemCode);
-
-
-            // If no more of item then clear selected若无更多项目则清除选中项
-            if (InventoryManager.Instance.FindItemInInventory(InventoryLocation.player, item.ItemCode) == -1)
+            if(itemDetails != null && isSelected)
             {
-                ClearSelectedItem();
-            }
+                //If a valid cursor position如果光标位置有效
+                if (gridCursor.CursorPositionIsValid)
+                {
+                    Vector3 worldPosition = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -mainCamera.transform.position.z));
 
+                    // Create item from prefab at mouse position在鼠标位置处从预制件创建物品
+                    GameObject itemGameObject = Instantiate(itemPrefab, new Vector3(worldPosition.x, worldPosition.y - Settings.gridCellSize / 2f, worldPosition.z),Quaternion.identity, parentItem);
+                    Item item = itemGameObject.GetComponent<Item>();
+                    item.ItemCode = itemDetails.itemCode;
+
+                    //Remove item from players inventory从玩家背包中移除物品
+                    InventoryManager.Instance.RemoveItem(InventoryLocation.player, item.ItemCode);
+
+
+                    // If no more of item then clear selected若无更多项目则清除选中项
+                    if (InventoryManager.Instance.FindItemInInventory(InventoryLocation.player, item.ItemCode) == -1)
+                    {
+                        ClearSelectedItem();
+                    }
+
+                }
+                 
+
+                
+
+
+            }
         }
-    }
     //实现将物品从库存中移除并在世界场景中生成
     //使用屏幕坐标转换确保物品出现在正确位置
 
