@@ -13,6 +13,17 @@ public delegate void MovementDelegate(float inputX, float inputY,bool isWalking,
 
 public static class EventHandler
 {
+    //Drop selectec item event删除所选项目事件
+    public static event Action DropSelectedItemEvent;
+
+    public static void CallDropSelectedItemEvent()
+    {
+        if (DropSelectedItemEvent != null)
+        {
+            DropSelectedItemEvent();
+        }
+    }
+
     //Inventory Updated Event库存更新事件
     public static event Action<InventoryLocation, List<InventoryItem>> InventoryUpdatedEvent;
     public static void CallInventoryUpdatedEvent(InventoryLocation inventoryLocation, List<InventoryItem> inventoryList)
