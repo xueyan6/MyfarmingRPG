@@ -53,6 +53,9 @@ public class SceneControllerManager : SingletonMonobehaviour<SceneControllerMana
         // Start fading to block and wait for it to finish before continuing.开始淡出至阻挡层，并在淡出完成后再继续。
         yield return StartCoroutine(Fade(1f));  // 变黑色
 
+        //Store scene data存储场景数据
+        SaveLoadManager.Instance.StoreCurrentSceneData();
+
         // Set player position设置玩家位置
         Player.Instance.gameObject.transform.position = spawnPosition;
 
@@ -67,6 +70,9 @@ public class SceneControllerManager : SingletonMonobehaviour<SceneControllerMana
 
         // Call after scene load event场景加载事件后的调用
         EventHandler.CallAfterSceneLoadEvent();
+
+        //Restore new scene data恢复新场景数据
+        SaveLoadManager.Instance.RestoreCurrentSceneData();
 
         // Start fading back in and wait for it to finish before exiting the function.开始淡入效果，并在淡入完成后退出函数。
         yield return StartCoroutine(Fade(0f)); // 变白色
@@ -104,6 +110,9 @@ public class SceneControllerManager : SingletonMonobehaviour<SceneControllerMana
 
         // If this event has any subscribers, call it如果此事件有任何订阅者，则调用它
         EventHandler.CallAfterSceneLoadEvent();
+
+        //每次进入到新场景，都恢复一下场景下的数据信息。
+        SaveLoadManager.Instance.RestoreCurrentSceneData(); 
 
         // Once the scene is finished loading, start fading in场景加载完成后，开始淡入效果
         StartCoroutine(Fade(0f));

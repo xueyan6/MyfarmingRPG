@@ -9,7 +9,7 @@ public class SceneTeleport : MonoBehaviour
     [SerializeField] private SceneName sceneNameGoto = SceneName.Scene1_Farm;  // 要去的场景的名称
     [SerializeField] private Vector3 scenePositionGoto = new Vector3(); // 新场景的player的位置信息
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
         // 尝试从碰撞对象获取Player组件，如果碰撞对象不是Player类型，则player为null
         Player player = collision.GetComponent<Player>();
