@@ -10,10 +10,13 @@ public static class Settings
 
     // Tilemap
     public const float gridCellSize = 1f; // grid cell size in unity units网格单元尺寸in unity units
+    public static Vector2 cursorSize = Vector2.one;
 
     //Player Movement
     public const float runingSpeed = 5.333f;
     public const float walkingSpeed = 2.666f;
+    public static float useToolAnimationPause = 0.25f;
+    public static float afterUseToolAnimationPause = 0.2f;
 
     //Inventory
     public static int playerInitialInventoryCapacity = 24;//玩家初始背包容量
