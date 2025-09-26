@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : SingletonMonobehaviour<Player>
 {
     private AnimationOverrides animationOverrides;
+    private GridCursor gridCursor;
 
     //Movement Parameters运动参数
     private float xInput;
@@ -74,6 +75,11 @@ public class Player : SingletonMonobehaviour<Player>
         mainCamera = Camera.main;
     }
 
+    private void Start()
+    {
+        gridCursor = FindObjectOfType<GridCursor>();
+    }
+
     private void Update()
     {
         #region Player Input
@@ -85,7 +91,11 @@ public class Player : SingletonMonobehaviour<Player>
 
         PlayerWalkInput();
 
+        PlayerClickInput();
+
         PlayerTestInput();
+
+
 
         //Send event to any listeners for player movement input向任何监听器发送事件以获取玩家移动输入
         EventHandler.CallMovementEvent(xInput, yInput,
@@ -194,9 +204,70 @@ public class Player : SingletonMonobehaviour<Player>
         }
     }
 
+    private void PlayerClickInput()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            if (gridCursor.CursorIsEnabled)
+            {
+                ProcessPlayerClickInput();
+            }
+        }
 
-    // Temp routine for test input
-    private void PlayerTestInput()
+    }
+
+    private void ProcessPlayerClickInput()
+    {
+        ResetMovement();
+
+        // Get Selected item details获取选定项的详细信息
+        ItemDetails itemDetails = InventoryManager.Instance.GetSelectedInventoryItemDetails(InventoryLocation.player);// 获取玩家当前选中的物品详情
+
+        if (itemDetails != null)// 检查是否有选中物品
+        {
+            switch (itemDetails.itemType)// 根据物品类型分支处理
+            {
+                case ItemType.Seed:// 如果是种子类型
+                    if (Input.GetMouseButtonDown(0))// 检测鼠标左键点击
+                    {
+                        ProcessPlayerClickInputSeed(itemDetails);// 调用种子点击处理方法
+                    }
+                    break;
+                case ItemType.Commodity:
+                    if (Input.GetMouseButtonDown(0))// 如果是商品类型
+                    {
+                        ProcessPlayerClickInputCommodity(itemDetails);
+                    }
+                    break;
+                case ItemType.none:// 空物品类型
+                    break;
+                case ItemType.count:
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    private void ProcessPlayerClickInputSeed(ItemDetails itemDetails)
+    {
+        if (itemDetails.canBeDropped && gridCursor.CursorPositionIsValid)// 检查物品可丢弃且光标位置有效
+        {
+            EventHandler.CallDropSelectedItemEvent();// 触发丢弃物品事件
+        }
+    }
+
+    private void ProcessPlayerClickInputCommodity(ItemDetails itemDetails)
+    {
+        if (itemDetails.canBeDropped && gridCursor.CursorPositionIsValid)
+        {
+            EventHandler.CallDropSelectedItemEvent();
+        }
+    }
+
+
+        // Temp routine for test input
+        private void PlayerTestInput()
     {
         // Trigger Advance Time触发提前时间
         if (Input.GetKey(KeyCode.T))
