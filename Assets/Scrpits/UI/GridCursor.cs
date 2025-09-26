@@ -127,6 +127,15 @@ public class GridCursor : MonoBehaviour
                         return;
                     }
                     break;
+
+                case ItemType.Hoeing_tool:
+                    if (!IsCursorValidForTool(gridPropertyDetails, itemDetails))
+                    {
+                        SetCursorToInvalid();
+                        return;
+                    }
+                    break;
+
                 case ItemType.none:
                     break;
                 case ItemType.count:
@@ -174,6 +183,68 @@ public class GridCursor : MonoBehaviour
         return gridPropertyDetails.canDropItem;// 仅当网格允许放置物品时有效
     }
 
+    //Sets the cursor as either valid or invalid for the tool for target gridPropertyDeails.Returns true if valid or false if invalid
+    //将光标设置为对目标网格属性详情的工具有效或无效。若有效则返回 true，否则返回 false。
+    private bool IsCursorValidForTool(GridPropertyDetails gridPropertyDetails, ItemDetails itemDetails)// 定义方法：检查光标位置是否适合使用工具
+    {
+        // Switch on tool开启工具
+        switch (itemDetails.itemType)
+        {
+            case ItemType.Hoeing_tool:
+                if (gridPropertyDetails.isDiggable == true && gridPropertyDetails.daysSinceDug == -1)// 检查地块是否可挖掘且未被挖掘过
+                {
+                    #region Need to get any items at location so we can check if they are reapable需要在该地点获取任何物品，以便我们检查它们是否可收割。
+                    // Get world position for cursor获取光标的世界坐标位置
+                    Vector3 cursorWorldPosition = new Vector3(GetWorldPositionForCursor().x + 0.5f, GetWorldPositionForCursor().y + 0.5f, 0f);// 计算光标中心世界坐标（中心= +0.5）
+
+                    // Get list of items at cursor location获取光标位置处的项目列表
+                    List<Item> itemList = new List<Item>();
+
+                    //获取光标位置处的所有物品组件
+                    HelperMethods.GetComponentsAtBoxLocation<Item>(out itemList, cursorWorldPosition, Settings.cursorSize, 0f);
+                    #endregion
+
+                    // Loop through items found to see if any are reapable type - we are not goint to let the player dig where there are reapable scenary items
+                    //遍历找到的物品，检查是否存在可收割类型——我们不会允许玩家在存在可收割场景物品的位置进行挖掘。
+                    bool foundReapable = false;
+
+                    foreach (Item item in itemList)
+                    {
+                        if (InventoryManager.Instance.GetItemDetails(item.ItemCode).itemType == ItemType.Reapable_scenary)// 检查物品是否为可收割场景物品
+                        {
+                            foundReapable = true;
+                            break;
+                        }
+                    }
+
+                    if (foundReapable)// 如果存在可收割物品
+                    {
+                        return false;// 返回无效（禁止挖掘）
+                    }
+                    else
+                    {
+                        return true;
+                    }
+
+                }
+                else
+                {
+                    return false;// 地块不可挖掘或已被挖掘过
+                }
+
+            default:
+                return false;
+
+        }
+
+    }
+
+    //核心目标：实现耕作系统中工具与场景物品的精确交互检测
+    //协作流程：
+    //光标位置处理：通过 GetWorldPositionForCursor()获取网格坐标后，添加0.5偏移量对齐单元格中心（确保检测区域精准覆盖地块）
+    //物品检测：调用 HelperMethods.GetComponentsAtBoxLocation 检测光标矩形区域内的所有可交互物品（如可收割场景物品）
+    //逻辑决策：根据检测结果决定是否允许使用工具（如禁止在存在Reapable_scenary物品的地块挖掘）
+
     // 禁用光标（透明化）
     public void DisableCursor()
     {
@@ -211,6 +282,12 @@ public class GridCursor : MonoBehaviour
         Vector2 gridScreenPosition = mainCamera.WorldToScreenPoint(gridWorldPosition);// 世界3D坐标转屏幕2D坐标
         return RectTransformUtility.PixelAdjustPoint(gridScreenPosition, cursorRectTransform, canvas);// 适配UI画布，解决分辨率自适应问题
     }
+
+    public Vector3 GetWorldPositionForCursor()
+    {
+        return grid.CellToWorld(GetGridPositionForCursor());
+    }
+
 
     //总结：
     //这段代码实现了一个基于网格系统的交互光标控制器，其核心逻辑可分为五个层次：
