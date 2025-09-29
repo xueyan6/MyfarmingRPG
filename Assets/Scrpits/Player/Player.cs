@@ -396,6 +396,9 @@ public class Player : SingletonMonobehaviour<Player>
         // Set grid property to dug保存更新后的地块属性
         GridPropertiesManager.Instance.SetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY, gridPropertyDetails);
 
+        // Display dug grid tiles 显示挖掘网格瓦片
+        GridPropertiesManager.Instance.DisplayDugGround(gridPropertyDetails);
+
         // After animation pause等待动画后处理时间
         yield return afterUseToolAnimationPause;
 
