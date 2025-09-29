@@ -1,12 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(GenerateGUID))]
 public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManager>, ISaveable
 {
-    public Grid grid;
+    private Tilemap groundDecoration1;
+    private Tilemap groundDecoration2;
+
+    private Grid grid;
+
     private Dictionary<string, GridPropertyDetails> gridPropertyDictionary;
+
     [SerializeField] private SO_GridProperties[] so_gridPropertiesArray = null;
+
+    [SerializeField] private Tile[] dugGround = null;
 
     private string _iSaveableUniqueID;
     public string ISaveableUniqueID { get { return _iSaveableUniqueID; } set { _iSaveableUniqueID = value; } }
@@ -40,6 +48,222 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
     {
         InitialiseGridProperties();
     }
+
+    private void ClearDisplayGroundDecorations()
+    {
+        // Remove ground decorations移除地面装饰物
+        groundDecoration1.ClearAllTiles();
+        groundDecoration2.ClearAllTiles();
+    }
+
+
+    private void ClearDisplayGridPropertyDetails()
+    {
+        ClearDisplayGroundDecorations();
+    }
+
+    public void DisplayDugGround(GridPropertyDetails gridPropertyDetails)
+    {
+        //Dug挖
+        if (gridPropertyDetails.daysSinceDug > -1)//如果当前地块的挖掘天数大于-1（表示已挖掘）
+        {
+            ConnectDugGround(gridPropertyDetails);
+        }
+    }
+
+    private void ConnectDugGround(GridPropertyDetails gridPropertyDetails)
+    {
+        // Select tile based on surrounding dug tiles检查该地块周围4个方向的相邻地块是否也被挖掘，从而决定使用哪种连接样式的瓦片（共16种可能组合）
+        Tile dugTile0 = SetDugTile(gridPropertyDetails.gridX, gridPropertyDetails.gridY);
+        groundDecoration1.SetTile(new Vector3Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY, 0), dugTile0);//将上一步获取的瓦片对象应用到指定坐标位置
+
+
+        // Set 4 tiles if dug surrounding current tile - up, down, left, right now that this central tile has been dug
+        //若当前中央瓷砖已被挖掘，则在其周围（上、下、左、右方向）挖掘4块瓷砖。
+        GridPropertyDetails adjacentGridPropertyDetails;
+
+        adjacentGridPropertyDetails = GetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY + 1);//获取上方地块属性
+        if (adjacentGridPropertyDetails != null && adjacentGridPropertyDetails.daysSinceDug > -1)//检查是否有效且已挖掘
+        {
+            Tile dugTile1 = SetDugTile(gridPropertyDetails.gridX, gridPropertyDetails.gridY + 1);//设置对应瓦片
+            groundDecoration1.SetTile(new Vector3Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY + 1, 0), dugTile1);//应用瓦片 → groundDecoration1.SetTile(坐标, 瓦片)
+        }
+
+        adjacentGridPropertyDetails = GetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY - 1);//下
+        if (adjacentGridPropertyDetails != null && adjacentGridPropertyDetails.daysSinceDug > -1)
+        {
+            Tile dugTile2 = SetDugTile(gridPropertyDetails.gridX, gridPropertyDetails.gridY - 1);
+            groundDecoration1.SetTile(new Vector3Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY - 1, 0), dugTile2);
+        }
+
+        adjacentGridPropertyDetails = GetGridPropertyDetails(gridPropertyDetails.gridX - 1, gridPropertyDetails.gridY);//左
+        if (adjacentGridPropertyDetails != null && adjacentGridPropertyDetails.daysSinceDug > -1)
+        {
+            Tile dugTile3 = SetDugTile(gridPropertyDetails.gridX - 1, gridPropertyDetails.gridY);
+            groundDecoration1.SetTile(new Vector3Int(gridPropertyDetails.gridX - 1, gridPropertyDetails.gridY, 0), dugTile3);
+        }
+
+        adjacentGridPropertyDetails = GetGridPropertyDetails(gridPropertyDetails.gridX + 1, gridPropertyDetails.gridY);//右
+        if (adjacentGridPropertyDetails != null && adjacentGridPropertyDetails.daysSinceDug > -1)
+        {
+            Tile dugTile4 = SetDugTile(gridPropertyDetails.gridX + 1, gridPropertyDetails.gridY);
+            groundDecoration1.SetTile(new Vector3Int(gridPropertyDetails.gridX + 1, gridPropertyDetails.gridY, 0), dugTile4);
+        }
+    }
+
+    private Tile SetDugTile(int xGrid, int yGrid)
+    {
+        // Get whether surrounding tiles(up,down,left,right) are dug or not检查四个方向相邻地块是否已挖掘
+        bool upDug = IsGridSquareDug(xGrid, yGrid + 1);
+        bool downDug = IsGridSquareDug(xGrid, yGrid - 1);
+        bool leftDug = IsGridSquareDug(xGrid - 1, yGrid);
+        bool rightDug = IsGridSquareDug(xGrid + 1, yGrid);
+
+        // 根据周围地块的挖掘状态选择相应的瓦片
+        #region Set appropriate tile based on whether surrounding tiles are dug or not
+        // 所有方向都未挖掘的情况
+        if (!upDug && !downDug && !rightDug && !leftDug)
+        {
+            return dugGround[0];
+        }
+        // 下右方向已挖掘，上左方向未挖掘的情况
+        else if (!upDug && downDug && rightDug && !leftDug)
+        {
+            return dugGround[1];
+        }
+        // 下右方向已挖掘，上方向未挖掘的情况
+        else if (!upDug && downDug && rightDug && leftDug)
+        {
+            return dugGround[2];
+        }
+        // 下左方向已挖掘，上右方向未挖掘的情况
+        else if (!upDug && downDug && !rightDug && leftDug)
+        {
+            return dugGround[3];
+        }
+        // 下方向已挖掘，其他方向未挖掘的情况
+        else if (!upDug && downDug && !rightDug && !leftDug)
+        {
+            return dugGround[4];
+        }
+        // 上下右方向已挖掘，左方向未挖掘的情况
+        else if (upDug && downDug && rightDug && !leftDug)
+        {
+            return dugGround[5];
+        }
+        // 上下右方向已挖掘，左方向已挖掘的情况
+        else if (upDug && downDug && rightDug && leftDug)
+        {
+            return dugGround[6];
+        }
+        // 上下左方向已挖掘，右方向未挖掘的情况
+        else if (upDug && downDug && !rightDug && leftDug)
+        {
+            return dugGround[7];
+        }
+        // 上下方向已挖掘，左右方向未挖掘的情况
+        else if (upDug && downDug && !rightDug && !leftDug)
+        {
+            return dugGround[8];
+        }
+        // 上右方向已挖掘，下左方向未挖掘的情况
+        else if (upDug && !downDug && rightDug && !leftDug)
+        {
+            return dugGround[9];
+        }
+        // 上右方向已挖掘，下方向未挖掘的情况
+        else if (upDug && !downDug && rightDug && leftDug)
+        {
+            return dugGround[10];
+        }
+        // 上左方向已挖掘，下右方向未挖掘的情况
+        else if (upDug && !downDug && !rightDug && leftDug)
+        {
+            return dugGround[11];
+        }
+        // 上方向已挖掘，其他方向未挖掘的情况
+        else if (upDug && !downDug && !rightDug && !leftDug)
+        {
+            return dugGround[12];
+        }
+        // 右方向已挖掘，其他方向未挖掘的情况
+        else if (!upDug && !downDug && rightDug && !leftDug)
+        {
+            return dugGround[13];
+        }
+        // 右方向已挖掘，左方向未挖掘的情况
+        else if (!upDug && !downDug && rightDug && leftDug)
+        {
+            return dugGround[14];
+        }
+        // 左方向已挖掘，其他方向未挖掘的情况
+        else if (!upDug && !downDug && !rightDug && leftDug)
+        {
+            return dugGround[15];
+        }
+        // 默认情况（理论上不会执行到这里）
+        return null;
+
+        #endregion Set appropriate tile based on whether surrounding tiles are dug or not
+
+    }
+
+    private bool IsGridSquareDug(int xGrid, int yGrid)
+    {
+        GridPropertyDetails gridPropertyDetails = GetGridPropertyDetails(xGrid, yGrid);//获取地块属性
+
+        if (gridPropertyDetails == null)
+        {
+            return false;
+        }
+        else if (gridPropertyDetails.daysSinceDug > -1)//有效地块返回daysSinceDug > -1
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+    private void DisplayGridPropertyDetails()
+    {
+        // Loop throught all grid items遍历所有网格项
+        foreach (KeyValuePair<string, GridPropertyDetails> item in gridPropertyDictionary)// 遍历字典中所有网格项
+        {
+            GridPropertyDetails gridPropertyDetails = item.Value;// 获取当前网格的属性详情对象
+
+            DisplayDugGround(gridPropertyDetails);// 调用显示方法处理当前网格
+        }
+    }
+
+
+
+    //核心功能流程：
+    //1.DisplayDugGround（入口方法）
+    //├─ 检查地块是否被挖掘（daysSinceDug > -1）
+    //└─ 触发 ConnectDugGround 连接逻辑
+
+    //2.地块连接处理（ConnectDugGround方法）
+    //├─ 当前地块处理
+    //│ ├─ 通过SetDugTile获取适配瓦片
+    //│ └─ 应用瓦片到Tilemap
+    //└─ 四向邻接检查（上/下/左/右）
+    //├─ 获取相邻地块属性（GetGridPropertyDetails）
+    //├─ 验证有效性及挖掘状态（IsGridSquareDug）
+    //└─ 动态设置连接瓦片（SetDugTile）
+
+    //3.瓦片决策逻辑（SetDugTile内部）
+    //├─ 四向邻接检测（IsGridSquareDug）
+    //│ ├─ 空地块返回false
+    //│ └─ 有效地块返回daysSinceDug > -1
+    //└─ 16种连接组合判断
+    //├─ 根据邻接状态选择对应瓦片
+    //└─ 返回dugGround数组中的预设瓦片
+
+    //4.数据流向
+    //属性检测 → daysSinceDug状态 → 瓦片选择 → 视觉渲染
 
 
     // This initialises the grid property dictionary with the values from the SO_GridProperties assets and stores the values for each scene in GameObjectSave sceneData
@@ -112,8 +336,13 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
 
     private void AfterSceneLoaded() // 获取网格组件
     {
-        // Get Grid
+        // Get Grid获取网格
         grid = GameObject.FindObjectOfType<Grid>();
+
+        // Get tilemaps获取瓦片地图
+        groundDecoration1 = GameObject.FindGameObjectWithTag(Tags.GroundDecoration1).GetComponent<Tilemap>();
+        groundDecoration2 = GameObject.FindGameObjectWithTag(Tags.GroundDecoration2).GetComponent<Tilemap>();
+
     }
 
 
@@ -172,6 +401,18 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
             {
                 gridPropertyDictionary = sceneSave.gridPropertyDetailsDictionary;
             }
+
+            // If grid properties exist如果网格属性存在
+            if (gridPropertyDictionary.Count > 0)
+            {
+                // grid property details found for the current scene destroy existing ground decoration当前场景中找到的网格属性详情销毁现有的地面装饰
+                ClearDisplayGridPropertyDetails();
+
+                // Instantiate grid property details for current scene为当前场景实例化网格属性详情
+                DisplayGridPropertyDetails();
+            }
+
+
         }
     }
 
