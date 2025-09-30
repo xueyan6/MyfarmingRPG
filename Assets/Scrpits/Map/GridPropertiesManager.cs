@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -15,6 +16,7 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
     [SerializeField] private SO_GridProperties[] so_gridPropertiesArray = null;
 
     [SerializeField] private Tile[] dugGround = null;
+    [SerializeField] private Tile[] wateredGround = null;
 
     private string _iSaveableUniqueID;
     public string ISaveableUniqueID { get { return _iSaveableUniqueID; } set { _iSaveableUniqueID = value; } }
@@ -35,6 +37,8 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
         ISaveableRegister();// 注册到存档系统
 
         EventHandler.AfterSceneLoadEvent += AfterSceneLoaded;
+        // 水不会永远留在地上，每天需要重置Tile
+        EventHandler.AdvanceGameDayEvent += AdvanceDay;
     }
 
     private void OnDisable()
@@ -42,6 +46,8 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
         ISaveableDeregister();// 从存档系统注销
 
         EventHandler.AfterSceneLoadEvent -= AfterSceneLoaded;
+
+        EventHandler.AdvanceGameDayEvent -= AdvanceDay;
     }
 
     private void Start()
@@ -56,6 +62,14 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
         groundDecoration2.ClearAllTiles();
     }
 
+    public void DisplayWateredGround(GridPropertyDetails gridPropertyDetails)
+    {
+        // Watered
+        if (gridPropertyDetails.daysSinceWatered > -1)
+        {
+            ConnectWateredGround(gridPropertyDetails);
+        }
+    }
 
     private void ClearDisplayGridPropertyDetails()
     {
@@ -109,6 +123,45 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
             Tile dugTile4 = SetDugTile(gridPropertyDetails.gridX + 1, gridPropertyDetails.gridY);
             groundDecoration1.SetTile(new Vector3Int(gridPropertyDetails.gridX + 1, gridPropertyDetails.gridY, 0), dugTile4);
         }
+    }
+
+    private void ConnectWateredGround(GridPropertyDetails gridPropertyDetails)
+    {
+        // Select tile based on surrounding watered tiles
+        Tile wateredTile0 = SetWateredTile(gridPropertyDetails.gridX, gridPropertyDetails.gridY);
+        groundDecoration2.SetTile(new Vector3Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY, 0), wateredTile0);
+
+        // Set 4 tiles if watered surrounding current tile - up, down, left, right now that this central tile has been watered
+        GridPropertyDetails adjacentGridPropertyDetails;
+
+        adjacentGridPropertyDetails = GetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY + 1);
+        if (adjacentGridPropertyDetails != null && adjacentGridPropertyDetails.daysSinceWatered > -1)
+        {
+            Tile wateredTile1 = SetWateredTile(gridPropertyDetails.gridX, gridPropertyDetails.gridY + 1);
+            groundDecoration2.SetTile(new Vector3Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY + 1, 0), wateredTile1);
+        }
+
+        adjacentGridPropertyDetails = GetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY - 1);
+        if (adjacentGridPropertyDetails != null && adjacentGridPropertyDetails.daysSinceWatered > -1)
+        {
+            Tile wateredTile2 = SetWateredTile(gridPropertyDetails.gridX, gridPropertyDetails.gridY - 1);
+            groundDecoration2.SetTile(new Vector3Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY - 1, 0), wateredTile2);
+        }
+
+        adjacentGridPropertyDetails = GetGridPropertyDetails(gridPropertyDetails.gridX - 1, gridPropertyDetails.gridY);
+        if (adjacentGridPropertyDetails != null && adjacentGridPropertyDetails.daysSinceWatered > -1)
+        {
+            Tile wateredTile3 = SetWateredTile(gridPropertyDetails.gridX - 1, gridPropertyDetails.gridY);
+            groundDecoration2.SetTile(new Vector3Int(gridPropertyDetails.gridX - 1, gridPropertyDetails.gridY, 0), wateredTile3);
+        }
+
+        adjacentGridPropertyDetails = GetGridPropertyDetails(gridPropertyDetails.gridX + 1, gridPropertyDetails.gridY);
+        if (adjacentGridPropertyDetails != null && adjacentGridPropertyDetails.daysSinceWatered > -1)
+        {
+            Tile wateredTile4 = SetWateredTile(gridPropertyDetails.gridX + 1, gridPropertyDetails.gridY);
+            groundDecoration2.SetTile(new Vector3Int(gridPropertyDetails.gridX + 1, gridPropertyDetails.gridY, 0), wateredTile4);
+        }
+
     }
 
     private Tile SetDugTile(int xGrid, int yGrid)
@@ -226,6 +279,103 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
         }
     }
 
+    private Tile SetWateredTile(int xGrid, int yGrid)
+    {
+        // Get whether surrounding tiles(up,down,left,right) are watered or not获取周围方块（上方、下方、左侧、右侧）是否被浇灌
+        bool upWatered = IsGridSquareWatered(xGrid, yGrid + 1);
+        bool downWatered = IsGridSquareWatered(xGrid, yGrid - 1);
+        bool leftWatered = IsGridSquareWatered(xGrid - 1, yGrid);
+        bool rightWatered = IsGridSquareWatered(xGrid + 1, yGrid);
+
+        #region Set appropriate tile based on whether surrounding tiles are watered or not根据周围瓷砖是否浇水设置相应的瓷砖
+        if (!upWatered && !downWatered && !rightWatered && !leftWatered)
+        {
+            return wateredGround[0];
+        }
+        else if (!upWatered && downWatered && rightWatered && !leftWatered)
+        {
+            return wateredGround[1];
+        }
+        else if (!upWatered && downWatered && rightWatered && leftWatered)
+        {
+            return wateredGround[2];
+        }
+        else if (!upWatered && downWatered && !rightWatered && leftWatered)
+        {
+            return wateredGround[3];
+        }
+        else if (!upWatered && downWatered && !rightWatered && !leftWatered)
+        {
+            return wateredGround[4];
+        }
+        else if (upWatered && downWatered && rightWatered && !leftWatered)
+        {
+            return wateredGround[5];
+        }
+        else if (upWatered && downWatered && rightWatered && leftWatered)
+        {
+            return wateredGround[6];
+        }
+        else if (upWatered && downWatered && !rightWatered && leftWatered)
+        {
+            return wateredGround[7];
+        }
+        else if (upWatered && downWatered && !rightWatered && !leftWatered)
+        {
+            return wateredGround[8];
+        }
+        else if (upWatered && !downWatered && rightWatered && !leftWatered)
+        {
+            return wateredGround[9];
+        }
+        else if (upWatered && !downWatered && rightWatered && leftWatered)
+        {
+            return wateredGround[10];
+        }
+        else if (upWatered && !downWatered && !rightWatered && leftWatered)
+        {
+            return wateredGround[11];
+        }
+        else if (upWatered && !downWatered && !rightWatered && !leftWatered)
+        {
+            return wateredGround[12];
+        }
+        else if (!upWatered && !downWatered && rightWatered && !leftWatered)
+        {
+            return wateredGround[13];
+        }
+        else if (!upWatered && !downWatered && rightWatered && leftWatered)
+        {
+            return wateredGround[14];
+        }
+        else if (!upWatered && !downWatered && !rightWatered && leftWatered)
+        {
+            return wateredGround[15];
+        }
+
+        return null;
+
+        #endregion Set appropriate tile based on whether surrounding tiles are watered or not
+
+    }
+    private bool IsGridSquareWatered(int xGrid, int yGrid)
+    {
+        GridPropertyDetails gridPropertyDetails = GetGridPropertyDetails(xGrid, yGrid);
+
+        if (gridPropertyDetails == null)
+        {
+            return false;
+        }
+        else if (gridPropertyDetails.daysSinceWatered > -1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
 
     private void DisplayGridPropertyDetails()
     {
@@ -235,40 +385,41 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
             GridPropertyDetails gridPropertyDetails = item.Value;// 获取当前网格的属性详情对象
 
             DisplayDugGround(gridPropertyDetails);// 调用显示方法处理当前网格
+
+            DisplayWateredGround(gridPropertyDetails);
         }
     }
 
 
+        //核心功能流程：
+        //1.DisplayDugGround（入口方法）
+        //├─ 检查地块是否被挖掘（daysSinceDug > -1）
+        //└─ 触发 ConnectDugGround 连接逻辑
 
-    //核心功能流程：
-    //1.DisplayDugGround（入口方法）
-    //├─ 检查地块是否被挖掘（daysSinceDug > -1）
-    //└─ 触发 ConnectDugGround 连接逻辑
+        //2.地块连接处理（ConnectDugGround方法）
+        //├─ 当前地块处理
+        //│ ├─ 通过SetDugTile获取适配瓦片
+        //│ └─ 应用瓦片到Tilemap
+        //└─ 四向邻接检查（上/下/左/右）
+        //├─ 获取相邻地块属性（GetGridPropertyDetails）
+        //├─ 验证有效性及挖掘状态（IsGridSquareDug）
+        //└─ 动态设置连接瓦片（SetDugTile）
 
-    //2.地块连接处理（ConnectDugGround方法）
-    //├─ 当前地块处理
-    //│ ├─ 通过SetDugTile获取适配瓦片
-    //│ └─ 应用瓦片到Tilemap
-    //└─ 四向邻接检查（上/下/左/右）
-    //├─ 获取相邻地块属性（GetGridPropertyDetails）
-    //├─ 验证有效性及挖掘状态（IsGridSquareDug）
-    //└─ 动态设置连接瓦片（SetDugTile）
+        //3.瓦片决策逻辑（SetDugTile内部）
+        //├─ 四向邻接检测（IsGridSquareDug）
+        //│ ├─ 空地块返回false
+        //│ └─ 有效地块返回daysSinceDug > -1
+        //└─ 16种连接组合判断
+        //├─ 根据邻接状态选择对应瓦片
+        //└─ 返回dugGround数组中的预设瓦片
 
-    //3.瓦片决策逻辑（SetDugTile内部）
-    //├─ 四向邻接检测（IsGridSquareDug）
-    //│ ├─ 空地块返回false
-    //│ └─ 有效地块返回daysSinceDug > -1
-    //└─ 16种连接组合判断
-    //├─ 根据邻接状态选择对应瓦片
-    //└─ 返回dugGround数组中的预设瓦片
-
-    //4.数据流向
-    //属性检测 → daysSinceDug状态 → 瓦片选择 → 视觉渲染
+        //4.数据流向
+        //属性检测 → daysSinceDug状态 → 瓦片选择 → 视觉渲染
 
 
-    // This initialises the grid property dictionary with the values from the SO_GridProperties assets and stores the values for each scene in GameObjectSave sceneData
-    //此操作将网格属性字典初始化为SO_GridProperties资源中的值，并将每个场景的值存储在GameObjectSave场景数据中。
-    private void InitialiseGridProperties()
+        // This initialises the grid property dictionary with the values from the SO_GridProperties assets and stores the values for each scene in GameObjectSave sceneData
+        //此操作将网格属性字典初始化为SO_GridProperties资源中的值，并将每个场景的值存储在GameObjectSave场景数据中。
+        private void InitialiseGridProperties()
     {
         // Loop through all gridproperties in the array遍历所有网格配置
         foreach (SO_GridProperties so_GridProperties in so_gridPropertiesArray)
@@ -451,6 +602,55 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
 
         // Set value 
         gridPropertyDictionary[key] = gridPropertyDetails;
+    }
+
+    private void AdvanceDay(int gameYear, Season gameSeason, int gameDay, string gameDayyOfWeek, int gameHour, int gameMinute, int gameSecond)
+    {
+        // Clear Display All Grid Property Details清除显示所有网格属性详情
+        // 清除当前显示的网格属性信息，为更新做准备
+        ClearDisplayGridPropertyDetails();
+
+        // loop through all scenes - by looping through all gridproperty in the array遍历所有场景 - 通过循环遍历数组中的所有网格属性
+        foreach (SO_GridProperties so_GridProperties in so_gridPropertiesArray)
+        {
+            // Get gridpropertydetails dictionary for scene获取场景的网格属性详细信息字典
+            // 尝试从场景数据中获取当前场景的保存信息
+            if (GameObjectSave.sceneData.TryGetValue(so_GridProperties.sceneName.ToString(), out SceneSave sceneSave))
+            {
+                // 如果场景中存在网格属性数据
+                if (sceneSave.gridPropertyDetailsDictionary != null)
+                {
+                    // 从后向前遍历网格属性字典（可能是为了安全删除或特定顺序处理）
+                    for (int i = sceneSave.gridPropertyDetailsDictionary.Count - 1; i >= 0; i--)
+                    {
+                        // 获取当前索引（i）的键值对
+                        KeyValuePair<string, GridPropertyDetails> item = sceneSave.gridPropertyDetailsDictionary.ElementAt(i);//ElementAt：来自LINQ的扩展方法，可同时访问字典项的键和值，可满足按索引遍历字典的特殊情况。
+
+                        GridPropertyDetails gridPropertyDetails = item.Value;
+
+                        #region Update all grid properties to reflect the advance in the day更新所有网格属性以反映当日的进展
+
+                        // if ground is watered, then clear water如果地面浇过水，则为清除水
+                        // 如果该网格属性有浇水间隔记录（大于-1）
+                        if (gridPropertyDetails.daysSinceWatered > -1)
+                        {
+                            // 减少浇水间隔天数（模拟时间推进）
+                            gridPropertyDetails.daysSinceWatered -= 1;
+                        }
+
+                        // Set gridpropertydetails设置网格属性详细信息
+                        SetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY, gridPropertyDetails, sceneSave.gridPropertyDetailsDictionary);
+
+                        #endregion Update all grid properties to reflect the advance in the day
+                    }
+                }
+            }
+        }
+
+        // Display grid property details to reflect changed values显示网格属性详细信息以反映更改后的值
+        // 刷新显示以反映更新后的网格属性状态
+        DisplayGridPropertyDetails();
+
     }
 
     //1. 核心功能
