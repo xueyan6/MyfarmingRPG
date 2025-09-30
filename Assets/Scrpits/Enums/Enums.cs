@@ -103,7 +103,7 @@ public enum Season
 public enum ToolEffect
 {
     None,
-    Warting,
+    watering,
 }
 
 public enum Direction

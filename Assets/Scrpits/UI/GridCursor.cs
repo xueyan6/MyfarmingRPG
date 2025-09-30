@@ -128,6 +128,7 @@ public class GridCursor : MonoBehaviour
                     }
                     break;
 
+                case ItemType.Watering_tool:
                 case ItemType.Hoeing_tool:
                     if (!IsCursorValidForTool(gridPropertyDetails, itemDetails))
                     {
@@ -232,7 +233,18 @@ public class GridCursor : MonoBehaviour
                     return false;// 地块不可挖掘或已被挖掘过
                 }
 
-            default:
+            case ItemType.Watering_tool:
+                if (gridPropertyDetails.daysSinceDug > -1 && gridPropertyDetails.daysSinceWatered == -1)//检查地面是否被挖掘并且没浇水
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+
+
+                default:
                 return false;
 
         }
