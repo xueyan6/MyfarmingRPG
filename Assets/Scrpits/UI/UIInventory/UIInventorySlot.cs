@@ -11,6 +11,7 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private Canvas parentCanvas;
     private Transform parentItem;
     private GridCursor gridCursor;
+    private Cursor cursor;
     private GameObject draggedItem;
 
     public Image inventorySlotHighlight;
@@ -50,6 +51,7 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         mainCamera = Camera.main;
         gridCursor = FindObjectOfType<GridCursor>();
+        cursor = FindObjectOfType<Cursor>();
     }
     //获取主相机和物品父对象引用
     //为后续的屏幕坐标转换和物品生成做准备
@@ -58,9 +60,11 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     {
         // Disable cursor禁用光标
         gridCursor.DisableCursor();
+        cursor.DisableCursor();
 
         // Set item type to none将道具类型设置为无
         gridCursor.SelectedItemType = ItemType.none;
+        cursor.SelectedItemType = ItemType.none;
 
     }
 
@@ -79,6 +83,7 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         // Set use radius for cursors 设置光标使用半径 
         gridCursor.ItemUseGridRadius = itemDetails.itemUseGridRadius;
+        cursor.ItemUseRadius = itemDetails.itemUseRadius;
 
         // If item requires a grid cursor then enable cursor如果项目需要网格光标，则启用光标
         if (itemDetails.itemUseGridRadius > 0)
@@ -90,8 +95,21 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             gridCursor.DisableCursor();
         }
 
+        // If item requires a cursor then enable cursor 若物品需要光标则启用光标 
+        if (itemDetails.itemUseRadius > 0f)
+
+        {
+            cursor.EnableCursor();
+        }
+        else
+        {
+            cursor.DisableCursor();
+        }
+
+
         // Set item type设置道具类型
         gridCursor.SelectedItemType = itemDetails.itemType;
+        cursor.SelectedItemType = itemDetails.itemType;
 
 
         // Set item selected in inventory在物品栏中选定装备

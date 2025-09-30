@@ -596,4 +596,10 @@ public class Player : SingletonMonobehaviour<Player>
       return mainCamera.WorldToViewportPoint(transform.position);
     }
 
+    //获取玩家人物中心点（从脚下挪到人物中心）
+    public Vector3 GetPlayerCentrePosition()
+    {
+        return new Vector3(transform.position.x, transform.position.y + Settings.playerCentreYOffset, transform.position.z);
+
+    }
 }
