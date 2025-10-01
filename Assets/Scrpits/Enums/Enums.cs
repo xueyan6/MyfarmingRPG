@@ -106,6 +106,16 @@ public enum ToolEffect
     watering,
 }
 
+public enum HarvestActionEffect
+{
+    deciduousLeavesFalling,//ÂäÒ¶Æ®Áã
+    pineConesFalling,//ËÉ¹û×¹Âä
+    choppingTreeTrunk,//¿³·¥Ê÷¸É
+    breakingStone,
+    reaping,
+    none
+}
+
 public enum Direction
 {
     Left,

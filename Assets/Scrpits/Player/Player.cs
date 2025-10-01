@@ -630,6 +630,9 @@ public class Player : SingletonMonobehaviour<Player>
                         Vector3 effectPosition = new Vector3(itemArray[i].transform.position.x, itemArray[i].transform.position.y + Settings.gridCellSize / 2f,
                             itemArray[i].transform.position.z);
 
+                        // Trigger reaping effect 触发收割效果 
+                        EventHandler.CallHarvestActionEffectEvent(effectPosition, HarvestActionEffect.reaping);
+
                         // 执行收割操作
                         Destroy(itemArray[i].gameObject);// 销毁游戏对象
                         reapableItemCount++;// 增加计数器
@@ -661,7 +664,7 @@ public class Player : SingletonMonobehaviour<Player>
             TimeManager.Instance.TestAdvanceGameDay();
         }
 
-        // Test scene unload / load测试场景卸载/加载
+        // Test scene unload / load锟斤拷锟皆筹拷锟斤拷卸锟斤拷/锟斤拷锟斤拷
         if (Input.GetKeyDown(KeyCode.L))
         {
             SceneControllerManager.Instance.FadeAndLoadScene(SceneName.Scene1_Farm.ToString(), transform.position);

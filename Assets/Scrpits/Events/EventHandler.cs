@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 
 public delegate void MovementDelegate(float inputX, float inputY,bool isWalking,bool isRunning,bool isIdle, bool isCarrying,
@@ -23,6 +24,18 @@ public static class EventHandler
             DropSelectedItemEvent();
         }
     }
+
+    // Harvest Action Effect Event收获行动效果事件
+    public static event Action<Vector3, HarvestActionEffect> HarvestActionEffectEvent;
+
+    public static void CallHarvestActionEffectEvent(Vector3 effectPosition, HarvestActionEffect harvestActionEffect)
+    {
+        if (HarvestActionEffectEvent != null)
+        {
+            HarvestActionEffectEvent(effectPosition, harvestActionEffect);
+        }
+
+    } 
 
     //Inventory Updated Event库存更新事件
     public static event Action<InventoryLocation, List<InventoryItem>> InventoryUpdatedEvent;
