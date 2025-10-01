@@ -10,6 +10,7 @@ public class Player : SingletonMonobehaviour<Player>
 
     private AnimationOverrides animationOverrides;
     private GridCursor gridCursor;
+    private Cursor cursor;
 
     //Movement Parameters运动参数
     private float xInput;
@@ -76,6 +77,7 @@ public class Player : SingletonMonobehaviour<Player>
 
         // Initialise swappable character attributes初始化可交换字符属性
         armsCharacterAttribute = new CharacterAttribute(CharacterPartAnimator.arms, PartVariantColour.none, PartVariantType.none);
+        toolCharacterAttribute = new CharacterAttribute(CharacterPartAnimator.tool, PartVariantColour.none, PartVariantType.none);
 
         // Initialise character attribute list初始化字符属性列表
         characterAttributeCustomisationList = new List<CharacterAttribute>();
@@ -84,9 +86,24 @@ public class Player : SingletonMonobehaviour<Player>
         mainCamera = Camera.main;
     }
 
-    private void Start()
+    private void OnDisable()
+    {
+        EventHandler.BeforeSceneUnloadFadeOutEvent -= DisablePlayerInputAndResetMovement;
+        EventHandler.AfterSceneLoadFadeInEvent -= EnablePlayerInput;
+    }
+
+
+    private void OnEnable()
+    {
+        EventHandler.BeforeSceneUnloadFadeOutEvent += DisablePlayerInputAndResetMovement;
+        EventHandler.AfterSceneLoadFadeInEvent += EnablePlayerInput;
+    }
+
+        private void Start()
     {
         gridCursor = FindObjectOfType<GridCursor>();
+        cursor = FindObjectOfType<Cursor>();
+
         useToolAnimationPause = new WaitForSeconds(Settings.useToolAnimationPause);
         liftToolAnimationPause = new WaitForSeconds(Settings.liftToolAnimationPause);
 
@@ -228,7 +245,7 @@ public class Player : SingletonMonobehaviour<Player>
             {
 
 
-                if (gridCursor.CursorIsEnabled)
+                if (gridCursor.CursorIsEnabled|| cursor.CursorIsEnable)
                 {
                     // Get Cursor Grid Position获取光标网格位置
                     Vector3Int cursorGridPosition = gridCursor.GetGridPositionForCursor();
@@ -275,6 +292,7 @@ public class Player : SingletonMonobehaviour<Player>
 
                 case ItemType.Watering_tool:
                 case ItemType.Hoeing_tool:
+                case ItemType.Reaping_tool:
                     ProcessPlayerClickInputTool(gridPropertyDetails, itemDetails, playerDirection);
                     break;
 
@@ -309,6 +327,42 @@ public class Player : SingletonMonobehaviour<Player>
             return Vector3Int.down;// 返回Unity预定义的下方向向量(0,-1,0)
         }
         //返回的是Unity预定义的标准方向向量，可直接用于角色朝向控制
+    }
+
+    //输入光标位置和玩家位置，返回玩家朝向的方向向量
+    private Vector3Int GetPlayerDirection(Vector3 cursorPosition, Vector3 playerPosition)
+    {
+        // 检查光标是否在玩家右侧且Y轴在容差范围内
+        if (
+            cursorPosition.x > playerPosition.x// 光标X坐标大于玩家X坐标
+            &&
+            cursorPosition.y < (playerPosition.y + cursor.ItemUseRadius / 2f)// Y坐标小于上限
+            &&
+            cursorPosition.y > (playerPosition.y - cursor.ItemUseRadius / 2f)// Y坐标大于下限
+            )
+        {
+            return Vector3Int.right;// 返回向右的单位向量(1,0,0)
+        }
+        // 检查光标是否在玩家左侧且Y轴在容差范围内
+        else if (
+            cursorPosition.x < playerPosition.x// 光标X坐标小于玩家X坐标
+            &&
+            cursorPosition.y < (playerPosition.y + cursor.ItemUseRadius / 2f)// Y坐标小于上限
+            &&
+            cursorPosition.y > (playerPosition.y - cursor.ItemUseRadius / 2f)// Y坐标大于下限
+            )
+        {
+            return Vector3Int.left;// 返回向左的单位向量(-1,0,0)
+        }
+        // 检查光标是否在玩家上方（不考虑X轴）
+        else if (cursorPosition.y > playerPosition.y)// 仅比较Y坐标
+        {
+            return Vector3Int.up;// 返回向上的单位向量(0,1,0)
+        }
+        else
+        {
+            return Vector3Int.down;// 返回向下的单位向量(0,-1,0)
+        }
     }
 
 
@@ -354,7 +408,15 @@ public class Player : SingletonMonobehaviour<Player>
                 }
                 break;
 
-            default:
+            case ItemType.Reaping_tool:
+                if (cursor.CursorPositionIsValid)
+                {
+                    playerDirection = GetPlayerDirection(cursor.GetWorldPositionForCursor(), GetPlayerCentrePosition());
+                    ReapInPlayerDirectionAtCursor(itemDetails, playerDirection);
+                }
+                break;
+
+                default:
                 break;
 
         }
@@ -477,6 +539,110 @@ public class Player : SingletonMonobehaviour<Player>
         PlayerInputIsDisabled = false;
         playerToolUseDisabled = false;
 
+    }
+
+    private void ReapInPlayerDirectionAtCursor(ItemDetails itemDetails, Vector3Int playerDirection)
+    {
+        // StartCoroutine:开启协程执行收割流程（避免阻塞主线程）
+        StartCoroutine(ReapInPlayerDirectionAtCursorRoutine(itemDetails, playerDirection));
+    }
+
+    private IEnumerator ReapInPlayerDirectionAtCursorRoutine(ItemDetails itemDetails, Vector3Int playerDirection)
+    {
+        // 禁用玩家移动输入
+        PlayerInputIsDisabled = true;
+        // 禁用工具使用（防止重复触发）
+        playerToolUseDisabled = true;
+
+        // Set tool animation to scythe in override animation将工具动画设置为镰刀的覆盖动画
+        // 配置角色动画参数
+        toolCharacterAttribute.partVariantType = PartVariantType.scythe;// 先设定为镰刀动画（如果先清空再指定目标，会导致短暂的无状态期（可能出现T-Pose闪烁））
+        characterAttributeCustomisationList.Clear();// 清空原有动画参数
+        characterAttributeCustomisationList.Add(toolCharacterAttribute);// 添加镰刀参数
+        animationOverrides.ApplyCharacterCustomisationParameters(characterAttributeCustomisationList);// 应用动画覆盖（立即生效）
+
+        // Reap in player direction朝玩家方向收割
+        // 执行实际收割逻辑
+        UseToolInPlayerDirection(itemDetails, playerDirection);
+
+        // 等待动画完成（useToolAnimationPause是预定义的等待时间）
+        yield return useToolAnimationPause;
+
+        // 恢复玩家控制
+        PlayerInputIsDisabled = false;
+        playerToolUseDisabled = false;
+    }
+
+    // 实际执行工具使用的核心方法
+    private void UseToolInPlayerDirection(ItemDetails equippedItemDetails, Vector3Int playerDirection)
+    {
+        // 检测鼠标左键持续按下状态
+        if (Input.GetMouseButton(0))
+        {
+            // 根据工具类型执行不同逻辑
+            switch (equippedItemDetails.itemType)
+            {
+                case ItemType.Reaping_tool:// 收割工具处理分支
+                    // 根据方向设置对应的动画标志位
+                    if (playerDirection == Vector3Int.right)
+                    {
+                        isSwingingToolRight = true;// 触发右挥动画
+                    }
+                    else if (playerDirection == Vector3Int.left)
+                    {
+                        isSwingingToolLeft = true;// 触发左挥动画
+                    }
+                    else if (playerDirection == Vector3Int.up)
+                    {
+                        isSwingingToolUp = true;// 触发上挥动画
+                    }
+                    else if (playerDirection == Vector3Int.down)
+                    {
+                        isSwingingToolDown = true;// 触发下挥动画
+                    }
+                    break;
+            }
+
+            // Define centre point of square which will be used for collision testing定义用于碰撞检测的正方形中心点
+            // 碰撞检测区域计算
+            // 检测中心点X坐标（玩家位置+方向偏移：当玩家角色位于(0,0)且向右挥动镰刀（作用半径2单位）时，检测中心将计算为(1,0)，这样形成的2x2单位检测框既能完整覆盖右侧2单位范围，又避免左侧无效检测）
+            Vector2 point = new Vector2(GetPlayerCentrePosition().x + playerDirection.x * (equippedItemDetails.itemUseRadius / 2f),
+                GetPlayerCentrePosition().y + playerDirection.y * (equippedItemDetails.itemUseRadius / 2f));// 检测中心点Y坐标
+
+            // Define size of the square which will be used for collision testing定义用于碰撞检测的正方形尺寸
+            Vector2 size = new Vector2(equippedItemDetails.itemUseRadius, equippedItemDetails.itemUseRadius);// 检测区域大小（正方形）
+
+            // Get Item components with 2D collider located in the square at the centre point defined (2d colliders tested limited to maxCollidersToTestPerReapSwing)
+            //获取位于定义中心点正方形区域内的、带有2D碰撞器的物品组件（测试的2D碰撞器数量受限于每次收割摆动可测试的最大碰撞器数量）
+            Item[] itemArray = HelperMethods.GetComponentsAtBoxLocationNonAlloc<Item>(Settings.maxCollidersToTestPerReapSwing, point, size, 0f);
+
+            int reapableItemCount = 0;// 可收割物品计数器
+
+            // Loop through all items retrieved逆向遍历检测到的物品（避免修改集合问题）
+            for (int i = itemArray.Length - 1; i >= 0; i--)
+            {
+                if (itemArray[i] != null)
+                {
+                    // Destory item game object if reapable验证物品类型是否可收割
+                    if (InventoryManager.Instance.GetItemDetails(itemArray[i].ItemCode).itemType == ItemType.Reapable_scenary)
+                    {
+                        // Effect position计算特效生成位置（物品中心点上方半格）
+                        Vector3 effectPosition = new Vector3(itemArray[i].transform.position.x, itemArray[i].transform.position.y + Settings.gridCellSize / 2f,
+                            itemArray[i].transform.position.z);
+
+                        // 执行收割操作
+                        Destroy(itemArray[i].gameObject);// 销毁游戏对象
+                        reapableItemCount++;// 增加计数器
+
+                        // 达到单次最大收割数量则终止
+                        if (reapableItemCount >= Settings.maxTargetComponentsToDestroyPerReapSwing)
+                            break;
+                    }
+                }
+            }
+
+
+        }
     }
 
 
