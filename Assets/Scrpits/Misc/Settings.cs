@@ -67,6 +67,10 @@ public static class Settings
     public const string WateringTool = "Watering Can";
     public const string CollectingTool = "Basket";
 
+    // Reaping（收割）
+    public const int maxCollidersToTestPerReapSwing = 15; // 每次收割检测的最多的碰撞体数量
+    public const int maxTargetComponentsToDestroyPerReapSwing = 2; // 每次收割销毁的最多的组件数量
+
     // Time System
     public const float secondsPerGameSecond = 0.012f;
 
