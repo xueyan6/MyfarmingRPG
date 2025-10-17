@@ -280,7 +280,7 @@ public class Player : SingletonMonobehaviour<Player>
                 case ItemType.Seed:// 如果是种子类型
                     if (Input.GetMouseButtonDown(0))// 检测鼠标左键点击
                     {
-                        ProcessPlayerClickInputSeed(itemDetails);// 调用种子点击处理方法
+                        ProcessPlayerClickInputSeed(gridPropertyDetails,itemDetails);// 调用种子点击处理方法
                     }
                     break;
                 case ItemType.Commodity:
@@ -366,15 +366,35 @@ public class Player : SingletonMonobehaviour<Player>
     }
 
 
-    private void ProcessPlayerClickInputSeed(ItemDetails itemDetails)
+    private void ProcessPlayerClickInputSeed(GridPropertyDetails gridPropertyDetails,ItemDetails itemDetails)
     {
-        if (itemDetails.canBeDropped && gridCursor.CursorPositionIsValid)// 检查物品可丢弃且光标位置有效
+        // 检查物品可丢弃且光标位置有效，是否被挖掘以及是否种有种子
+        if (itemDetails.canBeDropped && gridCursor.CursorPositionIsValid && gridPropertyDetails.daysSinceDug > -1 && gridPropertyDetails.seedItemCode == -1)
+        {
+            PlantSeedAtCursor(gridPropertyDetails, itemDetails);
+        }
+        else if (itemDetails.canBeDropped && gridCursor.CursorPositionIsValid)// 检查物品可丢弃且光标位置有效
         {
             EventHandler.CallDropSelectedItemEvent();// 触发丢弃物品事件
         }
     }
 
-    private void ProcessPlayerClickInputCommodity(ItemDetails itemDetails)
+
+    private void PlantSeedAtCursor(GridPropertyDetails gridPropertyDetails, ItemDetails itemDetails)
+    {
+        // update grid properties with seed details更新网格属性并添加种子详情
+        gridPropertyDetails.seedItemCode = itemDetails.itemCode;
+        gridPropertyDetails.growthDays = 0;
+
+        // Display planted crop at grid property details在网格属性详情中显示种植作物
+        GridPropertiesManager.Instance.DisplayPlantedCrop(gridPropertyDetails);
+
+        // Remove item from inventory从物品栏中移除物品
+        EventHandler.CallRemoveSelectedItemFromInventoryEvent();
+
+    }
+
+        private void ProcessPlayerClickInputCommodity(ItemDetails itemDetails)
     {
         if (itemDetails.canBeDropped && gridCursor.CursorPositionIsValid)
         {
