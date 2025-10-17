@@ -37,12 +37,14 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private void OnDisable()
     {
         EventHandler.AfterSceneLoadEvent -= SceneLoaded;
+        EventHandler.RemoveSelectedItemFromInventoryEvent -= RemoveSelectedItemFromInventory;
         EventHandler.DropSelectedItemEvent -= DropSelectedItemAtMousePosition;
     }
 
     private void OnEnable()
     {
         EventHandler.AfterSceneLoadEvent += SceneLoaded;
+        EventHandler.RemoveSelectedItemFromInventoryEvent += RemoveSelectedItemFromInventory;
         EventHandler.DropSelectedItemEvent += DropSelectedItemAtMousePosition;
     }
 
@@ -171,17 +173,32 @@ public class UIInventorySlot : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                     }
 
                 }
-                 
-
-                
-
 
             }
         }
-    //实现将物品从库存中移除并在世界场景中生成
-    //使用屏幕坐标转换确保物品出现在正确位置
 
-    public void OnBeginDrag(PointerEventData eventData)//拖拽开始
+
+    private void RemoveSelectedItemFromInventory()
+    {
+        if (itemDetails != null && isSelected)
+        {
+            int itemCode = itemDetails.itemCode;
+
+            // Remove item from players inventory从玩家背包中移除物品
+            InventoryManager.Instance.RemoveItem(InventoryLocation.player, itemCode);
+
+            // If no more of iitem then clear selected如果没有更多项目，则清除选中项
+            if (InventoryManager.Instance.FindItemInInventory(InventoryLocation.player, itemCode) == -1)
+            {
+                ClearSelectedItem();
+            }
+        }
+    }
+
+        //实现将物品从库存中移除并在世界场景中生成
+        //使用屏幕坐标转换确保物品出现在正确位置
+
+        public void OnBeginDrag(PointerEventData eventData)//拖拽开始
     {
         if(itemDetails != null)
         {
