@@ -25,6 +25,19 @@ public static class EventHandler
         }
     }
 
+
+    // Remove selected item from inventory从物品栏中移除选定物品
+    public static event Action RemoveSelectedItemFromInventoryEvent;
+
+    public static void CallRemoveSelectedItemFromInventoryEvent()
+    {
+        if (RemoveSelectedItemFromInventoryEvent != null)
+        {
+            RemoveSelectedItemFromInventoryEvent();
+        }
+
+    }
+
     // Harvest Action Effect Event收获行动效果事件
     public static event Action<Vector3, HarvestActionEffect> HarvestActionEffectEvent;
 

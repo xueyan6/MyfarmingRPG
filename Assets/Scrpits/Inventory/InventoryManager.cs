@@ -267,12 +267,13 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         // Check if inventory already contains the item检查物品是否已存在于背包中
         int itemPosition = FindItemInInventory(inventoryLocation, itemCode);
 
-        if(itemPosition != -1)
+        //FindItemInInventory 方法用于在背包中查找指定物品的位置，若存在则返回索引，否则返回-1。
+        //若找到物品（itemPosition != -1），则调用 RemoveItemAtPosition 执行移除。
+        if (itemPosition != -1)
         {
             RemoveItemAtPosition(inventoryList,itemCode, itemPosition);
         }
-        //FindItemInInventory 方法用于在背包中查找指定物品的位置，若存在则返回索引，否则返回-1。
-        //若找到物品（itemPosition != -1），则调用 RemoveItemAtPosition 执行移除。
+      
 
         //Send event that inventory has been updated发送库存已更新的事件
         EventHandler.CallInventoryUpdatedEvent(inventoryLocation, inventoryLists[(int)inventoryLocation]);
