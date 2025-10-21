@@ -11,6 +11,7 @@ public class GridCursor : MonoBehaviour
     [SerializeField] private RectTransform cursorRectTransform = null;
     [SerializeField] private Sprite greenCursorSprite = null;
     [SerializeField] private Sprite redCursorSprite = null;
+    [SerializeField] private SO_CropDetailsList so_CropDetailsList = null;
 
 
     //控制光标位置是否有效
@@ -247,6 +248,39 @@ public class GridCursor : MonoBehaviour
                     return false;
                 }
 
+            case ItemType.Collecting_tool:
+                // Check if item can be harvested with item selected, check item is fully grown选中物品时检查该物品是否可收获，检查物品是否已完全生长
+
+                // Check if seed planted检查种子是否已播种
+                if (gridPropertyDetails.seedItemCode != -1)
+                {
+                    // Get crop details for seed 获取种子作物详情
+                    CropDetails cropDetails = so_CropDetailsList.GetCropDetails(gridPropertyDetails.seedItemCode);
+
+                    // if crop details found若发现作物详情
+                    if (cropDetails != null)
+                    {
+                        // Check if crop fully grown检查作物是否完全成熟
+                        if (gridPropertyDetails.growthDays >= cropDetails.totalGrowthDays)
+                        {
+                            // Check if crop can be harvested with tool selected检查是否可以使用当前选定的工具收获作物
+                            if (cropDetails.CanUseToolToHarvestCrop(itemDetails.itemCode))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return false;
 
                 default:
                 return false;
