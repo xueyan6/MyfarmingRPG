@@ -7,6 +7,7 @@ public class Player : SingletonMonobehaviour<Player>
 {
     private WaitForSeconds afterUseToolAnimationPause;
     private WaitForSeconds afterLiftToolAnimationPause;
+    private WaitForSeconds afterPickAnimationPause;
 
     private AnimationOverrides animationOverrides;
     private GridCursor gridCursor;
@@ -36,6 +37,7 @@ public class Player : SingletonMonobehaviour<Player>
     private bool isPickingUp;
     private bool isPickingDown;
     private WaitForSeconds liftToolAnimationPause;
+    private WaitForSeconds pickAnimationPause;
 
     private Camera mainCamera;
 
@@ -105,10 +107,12 @@ public class Player : SingletonMonobehaviour<Player>
         cursor = FindObjectOfType<Cursor>();
 
         useToolAnimationPause = new WaitForSeconds(Settings.useToolAnimationPause);
-        liftToolAnimationPause = new WaitForSeconds(Settings.liftToolAnimationPause);
+        liftToolAnimationPause = new WaitForSeconds(Settings.liftToolAnimationPause); 
+        pickAnimationPause = new WaitForSeconds(Settings.pickAnimationPause);
 
         afterUseToolAnimationPause = new WaitForSeconds(Settings.afterUseToolAnimationPause);
         afterLiftToolAnimationPause = new WaitForSeconds(Settings.afterLiftToolAnimationPause);
+        afterPickAnimationPause = new WaitForSeconds(Settings.afterPickAnimationPause);
     }
 
     private void Update()
@@ -293,6 +297,7 @@ public class Player : SingletonMonobehaviour<Player>
                 case ItemType.Watering_tool:
                 case ItemType.Hoeing_tool:
                 case ItemType.Reaping_tool:
+                case ItemType.Collecting_tool:
                     ProcessPlayerClickInputTool(gridPropertyDetails, itemDetails, playerDirection);
                     break;
 
@@ -425,6 +430,14 @@ public class Player : SingletonMonobehaviour<Player>
                 if (gridCursor.CursorPositionIsValid)
                 {
                     WaterGroundAtCursor(gridPropertyDetails, playerDirection);
+                }
+                break;
+
+
+            case ItemType.Collecting_tool:
+                if (gridCursor.CursorPositionIsValid)
+                {
+                    CollectInPlayerDirection(gridPropertyDetails, itemDetails, playerDirection);
                 }
                 break;
 
@@ -561,6 +574,35 @@ public class Player : SingletonMonobehaviour<Player>
 
     }
 
+    private void CollectInPlayerDirection(GridPropertyDetails gridPropertyDetails, ItemDetails equippedItemDetails, Vector3Int playerDirection)
+    {
+        // 启动一个协程来处理采集过程，以避免阻塞主线程并允许插入延时
+        StartCoroutine(CollectInPlayerDirectionRoutine(gridPropertyDetails, equippedItemDetails, playerDirection));
+    }
+
+    private IEnumerator CollectInPlayerDirectionRoutine(GridPropertyDetails gridPropertyDetails, ItemDetails equippedItemDetails, Vector3Int playerDirection)
+    {
+        PlayerInputIsDisabled = true;// 禁用玩家输入，防止在动画期间移动
+        playerToolUseDisabled = true;// 禁用工具使用，防止连续快速触发
+
+        ProcessCropWithEquippedItemInPlayerDirection(playerDirection, equippedItemDetails, gridPropertyDetails);// 执行核心的作物处理逻辑
+
+        yield return pickAnimationPause; // 等待采集动画播放完成
+
+        // After animation pause
+        yield return afterPickAnimationPause;// 等待一个额外的缓冲时间
+
+        PlayerInputIsDisabled = false;// 重新启用玩家输入
+        playerToolUseDisabled = false;// 重新启用工具使用
+
+    }
+
+    //关于协程：（StartCoroutine、IEnumerator、yield）
+    //它能够将这个方法“拉长” over time。它执行到 yield return pickAnimationPause; 时就自动暂停了，等待指定的时间（比如0.5秒）过后，Unity引擎会自动唤醒它，继续执行后面的代码。
+    //所以，在您的代码中启动协程，就是为了实现这样一个符合逻辑和时间顺序的流程：开始动作 -> 等待动作完成 -> 结束动作。这确保了游戏体验的流畅性和合理性。
+    //一个简单的判断法则：如果你的脚本中想要使用“延时”、“过几秒再”、“等到...的时候”这类词语来描述逻辑，那么99%的情况就是你该启动一个协程的时候。
+
+
     private void ReapInPlayerDirectionAtCursor(ItemDetails itemDetails, Vector3Int playerDirection)
     {
         // StartCoroutine:开启协程执行收割流程（避免阻塞主线程）
@@ -668,6 +710,51 @@ public class Player : SingletonMonobehaviour<Player>
         }
     }
 
+    //Method processes crop with equipped item in player direction方法使用玩家方向的装备物品处理作物
+    private void ProcessCropWithEquippedItemInPlayerDirection(Vector3Int playerDirection, ItemDetails equippedItemDetails, GridPropertyDetails gridPropertyDetails)
+    {
+        // 根据装备的物品类型进行判断
+        switch (equippedItemDetails.itemType)
+        {
+            case ItemType.Collecting_tool:
+
+                if (playerDirection == Vector3Int.right)
+                {
+                    isPickingRight = true;
+                }
+                else if (playerDirection == Vector3Int.left)
+                {
+                    isPickingLeft = true;
+                }
+                else if (playerDirection == Vector3Int.up)
+                {
+                    isPickingUp = true;
+                }
+                else if (playerDirection == Vector3Int.down)
+                {
+                    isPickingDown = true;
+                }
+                break;
+
+            case ItemType.none:
+                break;
+        }
+
+        // Get crop at cursor grid location在光标网格位置获取裁剪区域
+        Crop crop = GridPropertiesManager.Instance.GetCropObjectAtGridLocation(gridPropertyDetails);// 通过单例管理器获取指定网格位置上的作物对象
+
+        // Execute Process Tool Action For crop执行进程工具操作 用于作物
+        if (crop != null)
+        {
+            switch (equippedItemDetails.itemType)// 再次根据工具类型判断
+            {
+                case ItemType.Collecting_tool:
+                    crop.ProcessToolAction(equippedItemDetails);
+                    break;
+            }
+        }
+
+    }
 
         // Temp routine for test input测试输入的临时例程
         private void PlayerTestInput()
@@ -684,7 +771,7 @@ public class Player : SingletonMonobehaviour<Player>
             TimeManager.Instance.TestAdvanceGameDay();
         }
 
-        // Test scene unload / load锟斤拷锟皆筹拷锟斤拷卸锟斤拷/锟斤拷锟斤拷
+        // Test scene unload / load
         if (Input.GetKeyDown(KeyCode.L))
         {
             SceneControllerManager.Instance.FadeAndLoadScene(SceneName.Scene1_Farm.ToString(), transform.position);
@@ -768,7 +855,7 @@ public class Player : SingletonMonobehaviour<Player>
             characterAttributeCustomisationList.Clear();
             //将修改后的手臂属性(armsCharacterAttribute)添加到空列表中(包括：部位类型(characterPart)、颜色变体(partVariantColour)、动作变体(partVariantType)、动画名称(animationName)）
             characterAttributeCustomisationList.Add(armsCharacterAttribute);
-            //总结：1.为动画系统准备一个仅包含最新手臂状态的最小配置集。2.当调用ApplyCharacterCustomisationParameters时，系统会根据这个精简列表精确更新相关动画。
+            //总结：1.为动画系统准备一个仅包含最新手臂状态的最小配置集。2.当调用 ApplyCharacterCustomisationParameters 时，系统会根据这个精简列表精确更新相关动画。
 
             
             // 应用动画覆盖配置

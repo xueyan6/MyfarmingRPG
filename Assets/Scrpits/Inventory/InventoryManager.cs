@@ -78,7 +78,7 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
     }
 
     //Add an item to the inventory list for the inventorylocation将一项物品添加到库存位置的库存清单中
-    public void AddItem(InventoryLocation inventoryLocation, Item item)
+    public void AddItem(InventoryLocation inventoryLocation, Item item)//拾取场景中的物品并添加到物品栏中
     {
         int itemCode=item.ItemCode;
         List<InventoryItem> inventoryList=inventoryLists[(int)inventoryLocation];
@@ -100,8 +100,34 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         EventHandler.CallInventoryUpdatedEvent(inventoryLocation, inventoryLists[(int)inventoryLocation]);
     }
 
-    //Add item to the end of the inventory将物品添加到物品栏末尾
-    private void AddItemAtPosition(List<InventoryItem> inventoryList, int itemCode)
+
+    //Add an item of type itemCode to the inventory list for the inventoryLocation将类型为itemCode的物品添加到库存位置的库存列表中
+    public void AddItem(InventoryLocation inventoryLocation, int itemCode)//将收获的作物直接添加到物品栏中
+    {
+        // 根据传入的库存位置枚举，从库存字典中获取对应的库存列表
+        List<InventoryItem> inventoryList = inventoryLists[(int)inventoryLocation];
+
+        // Check if inventory already contains the item在指定库存中查找该物品是否已存在，返回其索引位置，若不存在则返回-1
+        int itemPosition = FindItemInInventory(inventoryLocation, itemCode);
+
+        // 如果物品已存在于库存中（找到了有效索引位置）
+        if (itemPosition != -1)
+        {
+            // 调用方法在已知位置增加物品数量（堆叠物品）
+            AddItemAtPosition(inventoryList, itemCode, itemPosition);
+        }
+        else
+        {
+            // 调用方法在库存中新增加物品（新增物品槽）
+            AddItemAtPosition(inventoryList, itemCode);
+        }
+
+        // Send event that inventory has been updated发送库存已更新的事件
+        EventHandler.CallInventoryUpdatedEvent(inventoryLocation, inventoryLists[(int)inventoryLocation]);
+    }
+
+        //Add item to the end of the inventory将物品添加到物品栏末尾
+        private void AddItemAtPosition(List<InventoryItem> inventoryList, int itemCode)
 
     {
         InventoryItem inventoryItem = new InventoryItem();
