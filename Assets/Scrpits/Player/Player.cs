@@ -387,15 +387,19 @@ public class Player : SingletonMonobehaviour<Player>
 
     private void PlantSeedAtCursor(GridPropertyDetails gridPropertyDetails, ItemDetails itemDetails)
     {
-        // update grid properties with seed details更新网格属性并添加种子详情
-        gridPropertyDetails.seedItemCode = itemDetails.itemCode;
-        gridPropertyDetails.growthDays = 0;
+        //Process if we have cropdetails for seed只处理有种植详情的种子
+        if (GridPropertiesManager.Instance.GetCropDetails(itemDetails.itemCode) != null) 
+        { 
+          // update grid properties with seed details更新网格属性并添加种子详情
+          gridPropertyDetails.seedItemCode = itemDetails.itemCode;
+          gridPropertyDetails.growthDays = 0;
 
-        // Display planted crop at grid property details在网格属性详情中显示种植作物
-        GridPropertiesManager.Instance.DisplayPlantedCrop(gridPropertyDetails);
+          // Display planted crop at grid property details在网格属性详情中显示种植作物
+          GridPropertiesManager.Instance.DisplayPlantedCrop(gridPropertyDetails);
 
-        // Remove item from inventory从物品栏中移除物品
-        EventHandler.CallRemoveSelectedItemFromInventoryEvent();
+          // Remove item from inventory从物品栏中移除物品
+          EventHandler.CallRemoveSelectedItemFromInventoryEvent();
+        }
 
     }
 
@@ -749,7 +753,7 @@ public class Player : SingletonMonobehaviour<Player>
             switch (equippedItemDetails.itemType)// 再次根据工具类型判断
             {
                 case ItemType.Collecting_tool:
-                    crop.ProcessToolAction(equippedItemDetails);
+                    crop.ProcessToolAction(equippedItemDetails, isPickingRight, isPickingLeft, isPickingUp, isPickingDown);
                     break;
             }
         }

@@ -423,60 +423,65 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
             // get crop details根据种子物品代码获取作物详细信息
             CropDetails cropDetails = so_CropDetailList.GetCropDetails(gridPropertyDetails.seedItemCode);
 
-            // prefab to use声明作物预制体变量
-            GameObject cropPrefab;
-
-            // 获取作物的生长阶段总数（根据growthDays数组长度）
-            int growthStages = cropDetails.growthDays.Length;
-            // 初始化当前生长阶段和天数计数器
-            int currentGrowthStage = 0;
-            int daysCounter = cropDetails.totalGrowthDays;
-
-            //从最高生长阶段开始倒序遍历，确定当前所处的生长阶段
-            for (int i = growthStages - 1; i >= 0; i--)
+            if (cropDetails != null)
             {
-                // 如果当前生长天数大于等于累计天数阈值
-                if (gridPropertyDetails.growthDays >= daysCounter)
+
+                // prefab to use声明作物预制体变量
+                GameObject cropPrefab;
+
+                // 获取作物的生长阶段总数（根据growthDays数组长度）
+                int growthStages = cropDetails.growthDays.Length;
+                // 初始化当前生长阶段和天数计数器
+                int currentGrowthStage = 0;
+                int daysCounter = cropDetails.totalGrowthDays;
+
+                //从最高生长阶段开始倒序遍历，确定当前所处的生长阶段
+                for (int i = growthStages - 1; i >= 0; i--)
                 {
-                    currentGrowthStage = i;// 设置当前生长阶段
-                    break;// 找到后跳出循环
+                    // 如果当前生长天数大于等于累计天数阈值
+                    if (gridPropertyDetails.growthDays >= daysCounter)
+                    {
+                        currentGrowthStage = i;// 设置当前生长阶段
+                        break;// 找到后跳出循环
+                    }
+
+                    // 减少天数计数器，继续检查前一个生长阶段
+                    daysCounter = daysCounter - cropDetails.growthDays[i];
                 }
 
-                // 减少天数计数器，继续检查前一个生长阶段
-                daysCounter = daysCounter - cropDetails.growthDays[i];
+                //示例场景
+                //假设作物有3个生长阶段，天数分布为[2, 3, 5]（总天数=10）：
+                //Case 1: growthDays = 4
+                //i=2: 4 >= 10? → 否 → daysCounter = 10 - 5 = 5
+                //i=1: 4 >= 5? → 否 → daysCounter = 5 - 3 = 2
+                //i=0: 4 >= 2? → 是 → 阶段0（未完全进入阶段1）。
+                //Case 2: growthDays = 7
+                //i=2: 7 >= 10? → 否 → daysCounter = 5
+                //i=1: 7 >= 5? → 是 → 阶段1。
+
+                // 获取当前生长阶段对应的预制体
+                cropPrefab = cropDetails.growthPrefab[currentGrowthStage];
+
+                // 获取当前生长阶段对应的精灵图片
+                Sprite growthSprite = cropDetails.growthSprite[currentGrowthStage];
+
+                // 将网格坐标转换为世界坐标
+                Vector3 worldPosition = groundDecoration2.CellToWorld(new Vector3Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY, 0));
+
+                // 调整世界坐标位置（向右偏移半个单元格大小）
+                worldPosition = new Vector3(worldPosition.x + Settings.gridCellSize / 2, worldPosition.y, worldPosition.z);
+
+                //instantiate crop prefab at grid location在调整后的位置实例化作物预制体
+                GameObject cropInstance = Instantiate(cropPrefab, worldPosition, Quaternion.identity);
+
+                // 设置作物实例的精灵图片
+                cropInstance.GetComponentInChildren<SpriteRenderer>().sprite = growthSprite;
+                // 设置作物实例的父物体
+                cropInstance.transform.SetParent(cropParentTransform);
+                // 设置作物实例的网格位置
+                cropInstance.GetComponent<Crop>().cropGridPosition = new Vector2Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY);
+
             }
-
-            //示例场景
-            //假设作物有3个生长阶段，天数分布为[2, 3, 5]（总天数=10）：
-            //Case 1: growthDays = 4
-            //i=2: 4 >= 10? → 否 → daysCounter = 10 - 5 = 5
-            //i=1: 4 >= 5? → 否 → daysCounter = 5 - 3 = 2
-            //i=0: 4 >= 2? → 是 → 阶段0（未完全进入阶段1）。
-            //Case 2: growthDays = 7
-            //i=2: 7 >= 10? → 否 → daysCounter = 5
-            //i=1: 7 >= 5? → 是 → 阶段1。
-
-            // 获取当前生长阶段对应的预制体
-            cropPrefab = cropDetails.growthPrefab[currentGrowthStage];
-
-            // 获取当前生长阶段对应的精灵图片
-            Sprite growthSprite = cropDetails.growthSprite[currentGrowthStage];
-
-            // 将网格坐标转换为世界坐标
-            Vector3 worldPosition = groundDecoration2.CellToWorld(new Vector3Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY, 0));
-
-            // 调整世界坐标位置（向右偏移半个单元格大小）
-            worldPosition = new Vector3(worldPosition.x + Settings.gridCellSize / 2, worldPosition.y, worldPosition.z);
-
-            //instantiate crop prefab at grid location在调整后的位置实例化作物预制体
-            GameObject cropInstance = Instantiate(cropPrefab, worldPosition, Quaternion.identity);
-
-            // 设置作物实例的精灵图片
-            cropInstance.GetComponentInChildren<SpriteRenderer>().sprite = growthSprite;
-            // 设置作物实例的父物体
-            cropInstance.transform.SetParent(cropParentTransform);
-            // 设置作物实例的网格位置
-            cropInstance.GetComponent<Crop>().cropGridPosition = new Vector2Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY);
 
         }
 
