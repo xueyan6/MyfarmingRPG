@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 27d209c31bcae874c980f6d29e211e4f, type: 3}
-  m_Name: so_CropDetailsList
+  m_Name: SO_CropDetailsList
   m_EditorClassIdentifier: 
   cropDetails:
   - seedItemCode: 10006

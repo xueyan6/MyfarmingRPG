@@ -16,7 +16,7 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
 
     [SerializeField] private SO_GridProperties[] so_gridPropertiesArray = null;
 
-    [SerializeField] private SO_CropDetailList so_CropDetailList = null;
+    [SerializeField] private SO_CropDetailsList so_CropDetailList = null;
 
     [SerializeField] private Tile[] dugGround = null;
     [SerializeField] private Tile[] wateredGround = null;
@@ -619,6 +619,40 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
         {
             return gridPropertyDetails;
         }
+    }
+
+    // 通过网格属性详情中的网格坐标，计算对应网格单元中心在世界空间中的三维坐标
+    // gridPropertyDetails.gridX 和 gridPropertyDetails.gridY 表示网格的横纵坐标
+    public Crop GetCropObjectAtGridLocation(GridPropertyDetails gridPropertyDetails)
+    {
+        // 在计算出的世界坐标点检测所有2D碰撞器，返回该位置的所有碰撞体数组
+        // OverlapPointAll会检测所有与指定点重叠的碰撞器
+        Vector3 worldPosition = grid.GetCellCenterWorld(new Vector3Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY, 0));
+        Collider2D[] collider2DArray = Physics2D.OverlapPointAll(worldPosition);
+
+        // Loop through colliders to get crop game object遍历碰撞器以获取作物游戏对象
+        Crop crop = null;
+
+        for (int i = 0; i < collider2DArray.Length; i++)
+        {
+            // 首先尝试从碰撞器所属游戏对象的父级组件中获取Crop组件
+            crop = collider2DArray[i].gameObject.GetComponentInParent<Crop>();
+            // 如果成功获取到Crop组件，并且该作物的网格位置与目标网格位置匹配，则结束循环
+            if (crop != null && crop.cropGridPosition == new Vector2Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY))
+                break;
+            // 如果父级未找到匹配的作物，则尝试从子级组件中获取Crop组件
+            crop = collider2DArray[i].gameObject.GetComponentInChildren<Crop>();
+            if (crop != null && crop.cropGridPosition == new Vector2Int(gridPropertyDetails.gridX, gridPropertyDetails.gridY))
+                break;
+        }
+        // 返回找到的作物对象（如果未找到则返回null）
+        return crop;
+    }
+
+    // Returns Crop Details for the provided seedItemCode返回指定种子项目代码的作物详情
+    public CropDetails GetCropDetails(int seedItemCode)
+    {
+        return so_CropDetailList.GetCropDetails(seedItemCode);
     }
 
     //// 查询全局字典
