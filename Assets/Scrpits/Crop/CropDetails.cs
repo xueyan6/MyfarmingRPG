@@ -18,7 +18,7 @@ public class CropDetails
 
     [ItemCodeDescription]
     public int harvestedTransformItemCode; // if the item transform into another item when harvested this item code will be populated若该物品在收获时会转化为另一物品，则此物品代码将被填充。
-    public bool hideCropBeforeHarvestedAnimation; // the crop should be disabled before the harvested animation在收割动画开前禁用作物
+    public bool hideCropBeforeHarvestedAnimation; // the crop should be disabled before the harvested animation在收割动画前让作物消失
     public bool disableCropCollidersBeforeHarvestedAnimation; // if colliders on crop should be disabled to avoid the harvested animation effecting any other game objects
                                                               //是否应禁用作物碰撞器，以避免收割动画影响其他游戏对象
     public bool isHarvestedAnimation; // true if harvested animation to be played on final growth stage prefab如果最终生长阶段预制件需要播放收获动画，则为真

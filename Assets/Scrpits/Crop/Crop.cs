@@ -8,11 +8,14 @@ public class Crop : MonoBehaviour
 {
     private int harvestActionCount = 0;// 记录当前已经对该作物执行了多少次收获操作
 
+    [Tooltip("This should be populated from child gameobject此处应从子游戏对象中填充数据")]
+    [SerializeField] private SpriteRenderer cropHarvestedSpriteRenderer = null;
+
     [HideInInspector]
     public Vector2Int cropGridPosition;// 存储此作物在网格地图中的坐标位置
 
     // 处理工具对作物施加的操作，是作物交互的核心入口
-    public void ProcessToolAction(ItemDetails equippedItemDetails)
+    public void ProcessToolAction(ItemDetails equippedItemDetails, bool isToolRight, bool isToolLeft, bool isToolDown, bool isToolUp)
     {
         // Get grid property details获取网格属性详情
         GridPropertyDetails gridPropertyDetails = GridPropertiesManager.Instance.GetGridPropertyDetails(cropGridPosition.x, cropGridPosition.y);
@@ -28,6 +31,21 @@ public class Crop : MonoBehaviour
         CropDetails cropDetails = GridPropertiesManager.Instance.GetCropDetails(seedItemDetails.itemCode);
         if (cropDetails == null) return;
 
+        // Get animator for crop if presen若有作物则触发动画器
+        Animator animator = GetComponentInChildren<Animator>();
+        // Trigger tool animation触发工具动画
+        if (animator != null)
+        {
+            if (isToolRight || isToolUp)
+            {
+                animator.SetTrigger("usetoolright");
+            }
+            else if (isToolLeft || isToolDown)
+            {
+                animator.SetTrigger("usetoolleft");
+            }
+        }
+
         // Get required harvest actions for tool查询使用当前工具收获此作物总共需要多少次操作；如果返回-1，表示该工具无法用于收获此作物
         int requiredHarvestActions = cropDetails.RequiredHarvestActionsForTool(equippedItemDetails.itemCode);
         if (requiredHarvestActions == -1) return;//“return 语句会返回到调用该方法的代码所在的位置（相当于退出来），回到原来的执行轨道上继续前进。由于 private 方法只能被本类调用，所以它总是返回到本类；而 public 方法可以被任何类调用，所以它可能返回到本类，也可能返回到其他类
@@ -37,25 +55,74 @@ public class Crop : MonoBehaviour
 
         // Check if required harvest actions made检查当前的收获操作次数是否已经达到或超过了要求的总次数
         if (harvestActionCount >= requiredHarvestActions)
-            HarvestCrop(cropDetails, gridPropertyDetails);// 如果已达到要求，则执行最终的收获逻辑
+            HarvestCrop(isToolRight, isToolUp, cropDetails, gridPropertyDetails, animator);// 如果已达到要求，则执行最终的收获逻辑
 
     }
 
     // 执行最终的收获操作，清理网格数据并产生产物
-    private void HarvestCrop(CropDetails cropDetails, GridPropertyDetails gridPropertyDetails)
+    private void HarvestCrop(bool isUsingToolRight, bool isUsingToolUp, CropDetails cropDetails, GridPropertyDetails gridPropertyDetails, Animator animator)
     {
+        // Is there a harvested animation是否存在已采集的动画？
+        if (cropDetails.isHarvestedAnimation && animator != null)
+        {
+            // if harvest sprite then add to sprite renderer若有收获图片则添加至精灵渲染器
+            if (cropDetails.harvestedSprite != null)
+            {
+                if (cropHarvestedSpriteRenderer != null)
+                {
+                    cropHarvestedSpriteRenderer.sprite = cropDetails.harvestedSprite;  // 一张图片
+                }
+            }
+
+            if (isUsingToolRight || isUsingToolUp)
+            {
+                animator.SetTrigger("harvestright");
+            }
+            else
+            {
+                animator.SetTrigger("harvestleft");
+            }
+        }
+
+
         // Delete crop from grid properties将网格属性中的种子代码重置为-1（空），表示此格子上不再有作物
         gridPropertyDetails.seedItemCode = -1;
         gridPropertyDetails.growthDays = -1;// 重置生长天数为-1
         gridPropertyDetails.daysSinceLastHarvest = -1;// 重置上次收获后的天数为-1
         gridPropertyDetails.daysSinceWatered = -1;// 重置浇水后的天数为-1
 
-        // 将更新后的网格属性详情写回网格管理系统，使地图状态得以更新
+        // Should the crop be hidden before the harvested animation是否应在收割动画播放前隐藏作物
+        if (cropDetails.hideCropBeforeHarvestedAnimation)// 判断当前作物配置是否要求在播放收获动画前隐藏作物
+        {
+            GetComponentInChildren<SpriteRenderer>().enabled = false;// 如果配置为真，则禁用作物对象下所有子对象中的SpriteRenderer组件，使作物在场景中不可见
+        }
+
+        // 将更新后的网格属性详情写回网格管理系统，使地图状态得以更新，通常是标记此地块已无作物
         GridPropertiesManager.Instance.SetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY, gridPropertyDetails);
 
-        // 执行收获的具体行为，如生成产物和销毁对象
+        // Is there a harvested animation - Destory this crop game object after animation completed是否存在收获动画 - 在动画完成后销毁该作物游戏对象
+        if (cropDetails.isHarvestedAnimation && animator != null)// 检查当前作物是否有收获动画，并且附加的Animator组件不为空，确保动画能够播放
+        {
+            StartCoroutine(ProcessHarvestedActionsAfterAnimation(cropDetails, gridPropertyDetails, animator));// 如果满足上述条件，启动一个协程。该协程将等待收获动画播放完毕后，再执行实际的收获后处理操作
+        }
+        else
+        {
+            HarvestActions(cropDetails, gridPropertyDetails);// 如果作物没有收获动画，或者Animator组件为空，则立即调用收获行为方法，执行如生成产物、销毁对象等操作
+        }
+
+    }
+
+    // 定义一个私有协程方法，用于在动画播放后处理收获行为。参数包括作物详情、网格属性和动画控制器
+    private IEnumerator ProcessHarvestedActionsAfterAnimation(CropDetails cropDetails, GridPropertyDetails gridPropertyDetails, Animator animator)
+    {
+        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("Harvested"))// 循环检查当前动画状态是否已经进入"Harvested"状态
+        {
+            yield return null;// 如果动画还没有播放到"Harvested"状态，就暂停协程直到下一帧再继续检查
+        }
+        // 当动画播放完毕后，调用实际的收获行为方法
         HarvestActions(cropDetails, gridPropertyDetails);
     }
+    
 
     // 收获行为的具体实现，负责生成产物并销毁作物游戏对象
     private void HarvestActions(CropDetails cropDetails, GridPropertyDetails gridPropertyDetails)
