@@ -295,6 +295,7 @@ public class Player : SingletonMonobehaviour<Player>
                     break;
 
                 case ItemType.Watering_tool:
+                case ItemType.Chopping_tool:
                 case ItemType.Hoeing_tool:
                 case ItemType.Reaping_tool:
                 case ItemType.Collecting_tool:
@@ -437,6 +438,12 @@ public class Player : SingletonMonobehaviour<Player>
                 }
                 break;
 
+            case ItemType.Chopping_tool:
+                if (gridCursor.CursorPositionIsValid)
+                {
+                   ChopInPlayerDirection(gridPropertyDetails, itemDetails, playerDirection);
+                }
+                break;
 
             case ItemType.Collecting_tool:
                 if (gridCursor.CursorPositionIsValid)
@@ -578,7 +585,36 @@ public class Player : SingletonMonobehaviour<Player>
 
     }
 
-    private void CollectInPlayerDirection(GridPropertyDetails gridPropertyDetails, ItemDetails equippedItemDetails, Vector3Int playerDirection)
+    private void ChopInPlayerDirection(GridPropertyDetails gridPropertyDetails, ItemDetails itemDetails, Vector3Int playerDirection)
+    {
+        // Trigger animation触发动画
+        StartCoroutine(ChopInPlayerDirectionRoutine(gridPropertyDetails, itemDetails, playerDirection));
+
+    }
+
+    private IEnumerator ChopInPlayerDirectionRoutine(GridPropertyDetails gridPropertyDetails, ItemDetails equippedItemDetails, Vector3Int playerDirection)
+    {
+        PlayerInputIsDisabled = true;
+        playerToolUseDisabled = true;
+
+        // Set tool animation to axe in override animation将工具动画设置为斧头覆盖动画
+        toolCharacterAttribute.partVariantType = PartVariantType.axe;
+        characterAttributeCustomisationList.Clear();
+        characterAttributeCustomisationList.Add(toolCharacterAttribute);
+        animationOverrides.ApplyCharacterCustomisationParameters(characterAttributeCustomisationList);
+
+        ProcessCropWithEquippedItemInPlayerDirection(playerDirection, equippedItemDetails, gridPropertyDetails);
+
+        yield return useToolAnimationPause;
+
+        // After animation pause 动画暂停后 
+        yield return useToolAnimationPause;
+
+        PlayerInputIsDisabled = false;
+        playerToolUseDisabled = false;
+    }
+
+        private void CollectInPlayerDirection(GridPropertyDetails gridPropertyDetails, ItemDetails equippedItemDetails, Vector3Int playerDirection)
     {
         // 启动一个协程来处理采集过程，以避免阻塞主线程并允许插入延时
         StartCoroutine(CollectInPlayerDirectionRoutine(gridPropertyDetails, equippedItemDetails, playerDirection));
@@ -720,6 +756,26 @@ public class Player : SingletonMonobehaviour<Player>
         // 根据装备的物品类型进行判断
         switch (equippedItemDetails.itemType)
         {
+            case ItemType.Chopping_tool:
+                if (playerDirection == Vector3Int.right)
+                {
+                    isUsingToolRight = true;
+                }
+                else if (playerDirection == Vector3Int.left)
+                {
+                    isUsingToolLeft = true;
+                }
+                else if (playerDirection == Vector3Int.up)
+                {
+                    isUsingToolUp = true;
+                }
+                else if (playerDirection == Vector3Int.down)
+                {
+                    isUsingToolDown = true;
+                }
+
+            break;
+
             case ItemType.Collecting_tool:
 
                 if (playerDirection == Vector3Int.right)
@@ -738,10 +794,11 @@ public class Player : SingletonMonobehaviour<Player>
                 {
                     isPickingDown = true;
                 }
-                break;
+
+            break;
 
             case ItemType.none:
-                break;
+            break;
         }
 
         // Get crop at cursor grid location在光标网格位置获取裁剪区域
@@ -752,9 +809,13 @@ public class Player : SingletonMonobehaviour<Player>
         {
             switch (equippedItemDetails.itemType)// 再次根据工具类型判断
             {
+                case ItemType.Chopping_tool:
+                    crop.ProcessToolAction(equippedItemDetails, isUsingToolRight, isUsingToolLeft, isUsingToolDown, isUsingToolUp);
+                break;
+
                 case ItemType.Collecting_tool:
                     crop.ProcessToolAction(equippedItemDetails, isPickingRight, isPickingLeft, isPickingUp, isPickingDown);
-                    break;
+                break;
             }
         }
 

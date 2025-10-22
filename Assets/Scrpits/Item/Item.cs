@@ -25,9 +25,9 @@ public class Item : MonoBehaviour
         }
     }
 
-    public void Init(int itemCodeParam)
+    public void Init(int itemCodeParam)//ItemCode=itemCodeParam当涉及到名称映射、键值查找、序列化/反序列化时，变量名必须一致；而在值传递、局部变量使用时，名称可以自由选择。
     {
-        if (ItemCode!=0)
+        if (itemCodeParam != 0)
         {
             ItemCode = itemCodeParam;
 

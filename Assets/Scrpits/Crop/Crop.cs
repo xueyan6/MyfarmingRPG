@@ -170,6 +170,7 @@ public class Crop : MonoBehaviour
                     spawnPosition = new Vector3(transform.position.x + Random.Range(-1f, 1f), transform.position.y + Random.Range(-1f, 1f), 0f);
                     // 通过场景物品管理器在计算出的位置实例化一个场景物品（如掉在地上的小麦）
                     SceneItemsManager.Instance.InstantiateSceneItem(cropDetails.cropProducedItemCode[i], spawnPosition);
+
                 }
             }
         }
