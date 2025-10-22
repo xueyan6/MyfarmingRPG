@@ -433,31 +433,19 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
                 int growthStages = cropDetails.growthDays.Length;
                 // 初始化当前生长阶段和天数计数器
                 int currentGrowthStage = 0;
-                int daysCounter = cropDetails.totalGrowthDays;
+
 
                 //从最高生长阶段开始倒序遍历，确定当前所处的生长阶段
                 for (int i = growthStages - 1; i >= 0; i--)
                 {
                     // 如果当前生长天数大于等于累计天数阈值
-                    if (gridPropertyDetails.growthDays >= daysCounter)
+                    if (gridPropertyDetails.growthDays >= cropDetails.growthDays[i])
                     {
                         currentGrowthStage = i;// 设置当前生长阶段
                         break;// 找到后跳出循环
                     }
 
-                    // 减少天数计数器，继续检查前一个生长阶段
-                    daysCounter = daysCounter - cropDetails.growthDays[i];
                 }
-
-                //示例场景
-                //假设作物有3个生长阶段，天数分布为[2, 3, 5]（总天数=10）：
-                //Case 1: growthDays = 4
-                //i=2: 4 >= 10? → 否 → daysCounter = 10 - 5 = 5
-                //i=1: 4 >= 5? → 否 → daysCounter = 5 - 3 = 2
-                //i=0: 4 >= 2? → 是 → 阶段0（未完全进入阶段1）。
-                //Case 2: growthDays = 7
-                //i=2: 7 >= 10? → 否 → daysCounter = 5
-                //i=1: 7 >= 5? → 是 → 阶段1。
 
                 // 获取当前生长阶段对应的预制体
                 cropPrefab = cropDetails.growthPrefab[currentGrowthStage];
