@@ -10,7 +10,6 @@ public class CropDetails
     [ItemCodeDescription]
     public int seedItemCode; // this is the item code for the corresponding seed这是对应种子的商品编码
     public int[] growthDays; // days growth for each stage每个阶段的生长天数
-    public int totalGrowthDays; // total growth days总生长天数
     public GameObject[] growthPrefab; // prefab to use when instantiating growth stages用于实例化成长阶段的预制件
     public Sprite[] growthSprite; // growth sprite生长图片
     public Season[] seasons; // growth seasons生长季节

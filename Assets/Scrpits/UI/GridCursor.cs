@@ -248,6 +248,7 @@ public class GridCursor : MonoBehaviour
                     return false;
                 }
 
+            case ItemType.Chopping_tool:
             case ItemType.Collecting_tool:
                 // Check if item can be harvested with item selected, check item is fully grown选中物品时检查该物品是否可收获，检查物品是否已完全生长
 
@@ -261,7 +262,7 @@ public class GridCursor : MonoBehaviour
                     if (cropDetails != null)
                     {
                         // Check if crop fully grown检查作物是否完全成熟
-                        if (gridPropertyDetails.growthDays >= cropDetails.totalGrowthDays)
+                        if (gridPropertyDetails.growthDays >= cropDetails.growthDays[cropDetails.growthDays.Length - 1])//数组索引是从0开始的，比如 growthDays 数组存储的是 [5, 10, 15, 20]，数组长度是4，最后一个索引是3，growthDays[3] 的值就是20，即总生长天数。
                         {
                             // Check if crop can be harvested with tool selected检查是否可以使用当前选定的工具收获作物
                             if (cropDetails.CanUseToolToHarvestCrop(itemDetails.itemCode))
