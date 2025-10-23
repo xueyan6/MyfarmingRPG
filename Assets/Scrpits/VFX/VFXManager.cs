@@ -7,6 +7,7 @@ public class VFXManager : SingletonMonobehaviour<VFXManager>
     private WaitForSeconds twoSeconds;// 2秒等待计时器
     [SerializeField] private GameObject reapingPrefab = null;// 收割特效预制体
     [SerializeField] private GameObject deciduousLeavesFallingPrefab = null;//落叶树叶飘零预制件
+    [SerializeField] private GameObject pineConesFallingPrefab = null;//松果坠落预制件
     [SerializeField] private GameObject choppingTreeTrunkPrefab = null;//砍伐树干预制件
 
     protected override void Awake()
@@ -36,13 +37,19 @@ public class VFXManager : SingletonMonobehaviour<VFXManager>
     {
         switch (harvestActionEffect)// 根据特效类型分支处理
         {
-            case HarvestActionEffect.deciduousLeavesFalling:
+            case HarvestActionEffect.deciduousLeavesFalling://落叶树叶飘零预制件
                 GameObject deciduousLeavesFalling = PoolManager.Instance.ReuseObject(deciduousLeavesFallingPrefab, effectPosition, Quaternion.identity);
                 deciduousLeavesFalling.SetActive(true);
                 StartCoroutine(DisableHarvestActionEffect(deciduousLeavesFalling, twoSeconds));
                 break;
 
-            case HarvestActionEffect.choppingTreeTrunk:
+            case HarvestActionEffect.pineConesFalling://松果坠落预制件
+                GameObject pineConesFalling = PoolManager.Instance.ReuseObject(pineConesFallingPrefab, effectPosition, Quaternion.identity);
+                pineConesFalling.SetActive(true);
+                StartCoroutine(DisableHarvestActionEffect(pineConesFalling, twoSeconds));
+                break;
+
+            case HarvestActionEffect.choppingTreeTrunk://砍伐树干预制件
                 GameObject choppingTreeTrunk = PoolManager.Instance.ReuseObject(choppingTreeTrunkPrefab, effectPosition, Quaternion.identity);
                 choppingTreeTrunk.SetActive(true);
                 StartCoroutine(DisableHarvestActionEffect(choppingTreeTrunk, twoSeconds));
