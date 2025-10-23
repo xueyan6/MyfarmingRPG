@@ -138,6 +138,13 @@ public class Crop : MonoBehaviour
         // 生成收获的产物（如小麦、胡萝卜等）
         SpawnHarvestedItems(cropDetails);
 
+        // Does this crop transform into another crop这种作物会转化为另一种作物吗？
+        if (cropDetails.harvestedTransformItemCode > 0)
+        {
+            CreateHarvestedTransformCrop(cropDetails, gridPropertyDetails);
+        }
+
+
         // 从游戏场景中销毁（删除）这个作物游戏对象
         Destroy(gameObject);  
     }
@@ -182,6 +189,22 @@ public class Crop : MonoBehaviour
                 }
             }
         }
+    }
+
+
+    private void CreateHarvestedTransformCrop(CropDetails cropDetails, GridPropertyDetails gridPropertyDetails)
+    {
+        // Update crop in grid properties在网格属性中更新作物
+        gridPropertyDetails.seedItemCode = cropDetails.harvestedTransformItemCode;
+        gridPropertyDetails.growthDays = 0;
+        gridPropertyDetails.daysSinceLastHarvest = -1;
+        gridPropertyDetails.daysSinceWatered = -1;
+
+        GridPropertiesManager.Instance.SetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY, gridPropertyDetails);
+
+        // Display planted crop展示种植作物
+        GridPropertiesManager.Instance.DisplayPlantedCrop(gridPropertyDetails);
+
     }
 
 }
