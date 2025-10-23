@@ -1,12 +1,11 @@
 
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class Crop : MonoBehaviour
 {
-    [Tooltip("This should be populated from child transform gameobject showing harvest effect spawn point")]
-    [SerializeField] private Transform harvestActionEffectTransform = null;
-
     private int harvestActionCount = 0;// 记录当前已经对该作物执行了多少次收获操作
 
     [Tooltip("This should be populated from child gameobject此处应从子游戏对象中填充数据")]
@@ -46,13 +45,6 @@ public class Crop : MonoBehaviour
                 animator.SetTrigger("usetoolleft");
             }
         }
-
-        // Trigger tool particle effect on crop在作物上触发工具粒子效果
-        if (cropDetails.isHarvestActionEffect)
-        {
-            EventHandler.CallHarvestActionEffectEvent(harvestActionEffectTransform.position, cropDetails.harvestActionEffect);
-        }
-
 
         // Get required harvest actions for tool查询使用当前工具收获此作物总共需要多少次操作；如果返回-1，表示该工具无法用于收获此作物
         int requiredHarvestActions = cropDetails.RequiredHarvestActionsForTool(equippedItemDetails.itemCode);
