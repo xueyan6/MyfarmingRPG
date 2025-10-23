@@ -132,7 +132,7 @@ MonoBehaviour:
     itemDescription: Blue Spruce Pine Cone
     itemSprite: {fileID: 21300000, guid: 5eb84bf51d351da428f95a1296f6a397, type: 3}
     itemLongDescription: Pine cones are packed with seeds to grow new fir trees
-    itemUseGridRadius: 0
+    itemUseGridRadius: 2
     itemUseRadius: 0
     isStaringItem: 0
     canBePickedUp: 1
