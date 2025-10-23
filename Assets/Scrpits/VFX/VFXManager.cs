@@ -6,6 +6,7 @@ public class VFXManager : SingletonMonobehaviour<VFXManager>
 {
     private WaitForSeconds twoSeconds;// 2秒等待计时器
     [SerializeField] private GameObject reapingPrefab = null;// 收割特效预制体
+    [SerializeField] private GameObject deciduousLeavesFallingPrefab = null;//落叶树叶飘零预制件
 
     protected override void Awake()
     {
@@ -34,6 +35,12 @@ public class VFXManager : SingletonMonobehaviour<VFXManager>
     {
         switch (harvestActionEffect)// 根据特效类型分支处理
         {
+            case HarvestActionEffect.deciduousLeavesFalling:
+                GameObject deciduousLeavesFalling = PoolManager.Instance.ReuseObject(deciduousLeavesFallingPrefab, effectPosition, Quaternion.identity);
+                deciduousLeavesFalling.SetActive(true);
+                StartCoroutine(DisableHarvestActionEffect(deciduousLeavesFalling, twoSeconds));
+                break;
+
             case HarvestActionEffect.reaping:// 收割特效
                 GameObject reaping = PoolManager.Instance.ReuseObject(reapingPrefab, effectPosition, Quaternion.identity); // 从对象池获取特效实例
                 reaping.SetActive(true);// 激活特效对象
