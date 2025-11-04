@@ -105,6 +105,17 @@ public class Crop : MonoBehaviour
             GetComponentInChildren<SpriteRenderer>().enabled = false;// 如果配置为真，则禁用作物对象下所有子对象中的SpriteRenderer组件，使作物在场景中不可见
         }
 
+        // Should box colliders be disabled before harvest在收获前是否应禁用盒子碰撞器
+        if (cropDetails.disableCropCollidersBeforeHarvestedAnimation)
+        {
+            // Disable any box colliders禁用所有盒形碰撞体
+            Collider2D[] collider2Ds = GetComponentsInChildren<Collider2D>();
+            foreach (Collider2D collider2D in collider2Ds)
+            {
+                collider2D.enabled = false;
+            }
+        }
+
         // 将更新后的网格属性详情写回网格管理系统，使地图状态得以更新，通常是标记此地块已无作物
         GridPropertiesManager.Instance.SetGridPropertyDetails(gridPropertyDetails.gridX, gridPropertyDetails.gridY, gridPropertyDetails);
 
