@@ -60,7 +60,19 @@ public static class EventHandler
         }
     }
 
-    //Movement Event
+    // Instantiate crop prefabs实例化作物预制件
+    public static event Action InstantiateCropPrefabsEvent;
+
+    public static void CallInstantiateCropPrefabsEvent()
+    {
+        if (InstantiateCropPrefabsEvent != null)
+        {
+            InstantiateCropPrefabsEvent();
+        }
+
+    }
+
+    //Movement Event移动事件
     public static event MovementDelegate MovementEvent;
 
     //Movement Event Call For Publishers
