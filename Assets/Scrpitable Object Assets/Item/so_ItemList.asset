@@ -180,7 +180,7 @@ MonoBehaviour:
     itemDescription: A Basic Pickaxe
     itemSprite: {fileID: 21300094, guid: 853ac38383c680342ac7e688bf29b197, type: 3}
     itemLongDescription: A strong, sturdy basic pickaxe - great for breaking rocks
-    itemUseGridRadius: 0
+    itemUseGridRadius: 1
     itemUseRadius: 0
     isStaringItem: 1
     canBePickedUp: 1
