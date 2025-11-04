@@ -250,6 +250,8 @@ public class GridCursor : MonoBehaviour
 
             case ItemType.Chopping_tool:
             case ItemType.Collecting_tool:
+            case ItemType.Breaking_tool:
+
                 // Check if item can be harvested with item selected, check item is fully grown选中物品时检查该物品是否可收获，检查物品是否已完全生长
 
                 // Check if seed planted检查种子是否已播种

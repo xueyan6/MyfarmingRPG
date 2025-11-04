@@ -295,6 +295,7 @@ public class Player : SingletonMonobehaviour<Player>
                     break;
 
                 case ItemType.Watering_tool:
+                case ItemType.Breaking_tool:
                 case ItemType.Chopping_tool:
                 case ItemType.Hoeing_tool:
                 case ItemType.Reaping_tool:
@@ -449,6 +450,12 @@ public class Player : SingletonMonobehaviour<Player>
                 if (gridCursor.CursorPositionIsValid)
                 {
                     CollectInPlayerDirection(gridPropertyDetails, itemDetails, playerDirection);
+                }
+                break;
+            case ItemType.Breaking_tool:
+                if (gridCursor.CursorPositionIsValid)
+                {
+                    BreakInPlayerDirection(gridPropertyDetails, itemDetails, playerDirection);
                 }
                 break;
 
@@ -642,8 +649,38 @@ public class Player : SingletonMonobehaviour<Player>
     //所以，在您的代码中启动协程，就是为了实现这样一个符合逻辑和时间顺序的流程：开始动作 -> 等待动作完成 -> 结束动作。这确保了游戏体验的流畅性和合理性。
     //一个简单的判断法则：如果你的脚本中想要使用“延时”、“过几秒再”、“等到...的时候”这类词语来描述逻辑，那么99%的情况就是你该启动一个协程的时候。
 
+    private void BreakInPlayerDirection(GridPropertyDetails gridPropertyDetails, ItemDetails equippedItemDetails, Vector3Int playerDirection)
+    {
+        StartCoroutine(BreakInPlayerDirectionRoutine(gridPropertyDetails, equippedItemDetails, playerDirection));
 
-    private void ReapInPlayerDirectionAtCursor(ItemDetails itemDetails, Vector3Int playerDirection)
+    }
+
+
+    private IEnumerator BreakInPlayerDirectionRoutine(GridPropertyDetails gridPropertyDetails, ItemDetails equippedItemDetails, Vector3Int playerDirection)
+    {
+        PlayerInputIsDisabled = true;
+        playerToolUseDisabled = true;
+
+        // Set tool animation to pickaxe in override animation将工具动画设置为镐头（覆盖动画）
+        toolCharacterAttribute.partVariantType = PartVariantType.pickaxe;
+        characterAttributeCustomisationList.Clear();
+        characterAttributeCustomisationList.Add(toolCharacterAttribute);
+        animationOverrides.ApplyCharacterCustomisationParameters(characterAttributeCustomisationList);
+
+        ProcessCropWithEquippedItemInPlayerDirection(playerDirection, equippedItemDetails, gridPropertyDetails);
+
+        yield return useToolAnimationPause;
+
+        // After animation pause动画暂停后
+        yield return afterLiftToolAnimationPause;
+
+        PlayerInputIsDisabled = false;
+        playerToolUseDisabled = false;
+
+    }
+
+
+        private void ReapInPlayerDirectionAtCursor(ItemDetails itemDetails, Vector3Int playerDirection)
     {
         // StartCoroutine:开启协程执行收割流程（避免阻塞主线程）
         StartCoroutine(ReapInPlayerDirectionAtCursorRoutine(itemDetails, playerDirection));
@@ -757,6 +794,7 @@ public class Player : SingletonMonobehaviour<Player>
         switch (equippedItemDetails.itemType)
         {
             case ItemType.Chopping_tool:
+            case ItemType.Breaking_tool:
                 if (playerDirection == Vector3Int.right)
                 {
                     isUsingToolRight = true;
@@ -810,6 +848,7 @@ public class Player : SingletonMonobehaviour<Player>
             switch (equippedItemDetails.itemType)// 再次根据工具类型判断
             {
                 case ItemType.Chopping_tool:
+                case ItemType.Breaking_tool:
                     crop.ProcessToolAction(equippedItemDetails, isUsingToolRight, isUsingToolLeft, isUsingToolDown, isUsingToolUp);
                 break;
 
