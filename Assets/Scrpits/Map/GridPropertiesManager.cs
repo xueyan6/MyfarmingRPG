@@ -9,6 +9,7 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
     private Transform cropParentTransform;
     private Tilemap groundDecoration1;
     private Tilemap groundDecoration2;
+    private bool isFirstTimeSceneLoaded = true;
 
     private Grid grid;
 
@@ -563,6 +564,10 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
                 this.gridPropertyDictionary = gridPropertyDictionary;
             }
 
+            // Add bool dictionary and set first time scene loaded to true添加bool字典，并将首次加载场景设置为true
+            sceneSave.boolDictionary = new Dictionary<string, bool>();
+            sceneSave.boolDictionary.Add("isFirstTimeSceneLoaded", true);
+
             // Add scene save to game object scene data将场景保存添加到游戏对象场景数据中
             GameObjectSave.sceneData.Add(so_GridProperties.sceneName.ToString(), sceneSave);
         }
@@ -681,6 +686,17 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
                 gridPropertyDictionary = sceneSave.gridPropertyDetailsDictionary;
             }
 
+            // get dictionary of bools - it exists since we created it in initialise获取布尔值字典——它存在于初始化阶段创建之后
+            if (sceneSave.boolDictionary != null && sceneSave.boolDictionary.TryGetValue("isFirstTimeSceneLoaded", out bool storedIsFirstTimeSceneLoaded))
+            {
+                isFirstTimeSceneLoaded = storedIsFirstTimeSceneLoaded;
+            }
+
+            // Instantiate any crop prefabs iniitially present in the scene初始化场景中存在的任何作物预制件
+            if (isFirstTimeSceneLoaded)
+                EventHandler.CallInstantiateCropPrefabsEvent();
+
+
             // If grid properties exist如果网格属性存在
             if (gridPropertyDictionary.Count > 0)
             {
@@ -691,6 +707,11 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
                 DisplayGridPropertyDetails();
             }
 
+            //Update first time scene loaded bool更新首次加载场景的布尔值
+            if (isFirstTimeSceneLoaded == true)
+            {
+                isFirstTimeSceneLoaded = false;
+            }
 
         }
     }
@@ -705,6 +726,10 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
 
         // create & add dict grid property details dictionary创建并添加字典网格属性详细信息字典
         sceneSave.gridPropertyDetailsDictionary = gridPropertyDictionary;
+
+        // create && add bool dictionary for first time scene loaded创建并添加布尔字典，用于首次加载场景
+        sceneSave.boolDictionary = new Dictionary<string, bool>();
+        sceneSave.boolDictionary.Add("isFirstTimeSceneLoaded", isFirstTimeSceneLoaded);
 
         // Add scene save to game object scene data将场景保存添加到游戏对象场景数据中
         GameObjectSave.sceneData.Add(sceneName, sceneSave);
