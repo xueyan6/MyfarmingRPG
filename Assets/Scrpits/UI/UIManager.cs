@@ -4,6 +4,8 @@ using UnityEngine.UI;
 public class UIManager : SingletonMonobehaviour<UIManager>
 {
     private bool _pauseMenuOn = false;// 标记暂停菜单是否打开
+    [SerializeField] private UIInventoryBar uiInventoryBar = null;
+    [SerializeField] private PauseMenuInventoryManagement pauseMenuInventoryManagement = null;//暂停菜单库存管理
     [SerializeField] private GameObject pauseMenu = null;// 暂停菜单游戏对象
     [SerializeField] private GameObject[] menuTabs = null;// 菜单标签页数组
     [SerializeField] private Button[] menuButtons = null;// 菜单按钮数组
@@ -41,6 +43,12 @@ public class UIManager : SingletonMonobehaviour<UIManager>
 
     private void EnablePauseMenu()
     {
+        // Destroy any currently dragged items 清除当前拖拽的任何项目 
+        uiInventoryBar.DestroyCurrentlyDraggedItems();
+
+        // Clear currently selected items 清除当前选中的项目 
+        uiInventoryBar.ClearCurrentlySelectedItems();
+
         PauseMenuOn = true;// 设置暂停菜单状态为打开
         Player.Instance.PlayerInputIsDisabled = true;// 禁用玩家输入
         Time.timeScale = 0;// 暂停游戏时间
@@ -55,6 +63,9 @@ public class UIManager : SingletonMonobehaviour<UIManager>
 
     private void DisablePauseMenu()
     {
+        // Destroy any currently dragged items 清除当前拖拽的任何项目 
+        pauseMenuInventoryManagement.DestroyCurrentlyDraggedItems();
+
         PauseMenuOn = false;// 设置暂停菜单状态为关闭
         Player.Instance.PlayerInputIsDisabled = false;// 启用玩家输入
         Time.timeScale = 1;// 恢复游戏时间
