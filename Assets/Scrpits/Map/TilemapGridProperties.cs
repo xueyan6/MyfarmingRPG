@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 [ExecuteAlways]
 public class TilemapGridProperties : MonoBehaviour
 {
+#if UNITY_EDITOR
     private Tilemap tilemap;
     [SerializeField] private SO_GridProperties gridProperties = null;
     [SerializeField] private GridBoolProperty gridBoolProperty = GridBoolProperty.diggable;
@@ -86,7 +87,7 @@ public class TilemapGridProperties : MonoBehaviour
             Debug.Log("DISABLE PROPERTY TILEMAPS");
         }
     }
-
+#endif
     //核心功能：
     //该脚本是Unity编辑器扩展工具，专门用于管理Tilemap的网格属性数据
     //主要实现Tilemap单元格属性的自动采集和存储功能
@@ -116,3 +117,4 @@ public class TilemapGridProperties : MonoBehaviour
     //使用EditorUtility.SetDirty确保修改能被保存
     //通过序列化字段暴露配置参数（gridProperties/gridBoolProperty）
 }
+

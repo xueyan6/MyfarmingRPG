@@ -119,5 +119,8 @@ public class UIManager : SingletonMonobehaviour<UIManager>
 
         HighlightButtonForSelectedTab();// 更新按钮高亮状态
     }
-
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }
