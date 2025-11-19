@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(GenerateGUID))]
 public class SceneItemsManager : SingletonMonobehaviour<SceneItemsManager>, ISaveable
@@ -77,6 +78,19 @@ public class SceneItemsManager : SingletonMonobehaviour<SceneItemsManager>, ISav
         SaveLoadManager.Instance.iSaveableObjectList.Remove(this);// 从存档管理器移除当前对象
     }
 
+    public void ISaveableLoad(GameSave gameSave)
+    {
+        if (gameSave.gameObjectData.TryGetValue(ISaveableUniqueID, out GameObjectSave gameObjectSave))
+        {
+            GameObjectSave = gameObjectSave;
+
+            // Restore data for current scene恢复当前场景的数据
+            ISaveableRestoreScene(SceneManager.GetActiveScene().name);
+        }
+    }
+
+
+
     public void ISaveableRestoreScene(string sceneName)
     {
         if (GameObjectSave.sceneData.TryGetValue(sceneName, out SceneSave sceneSave))// 尝试获取指定场景存档
@@ -97,6 +111,13 @@ public class SceneItemsManager : SingletonMonobehaviour<SceneItemsManager>, ISav
         SaveLoadManager.Instance.iSaveableObjectList.Add(this);// 向存档管理器注册当前对象
     }
 
+    public GameObjectSave ISaveableSave()
+    {
+        // Store current scene data存储当前场景数据
+        ISaveableStoreScene(SceneManager.GetActiveScene().name);
+
+        return GameObjectSave;
+    }
 
     public void ISaveableStoreScene(string sceneName)
     {

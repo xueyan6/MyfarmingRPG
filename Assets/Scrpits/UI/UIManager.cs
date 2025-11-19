@@ -61,7 +61,7 @@ public class UIManager : SingletonMonobehaviour<UIManager>
         HighlightButtonForSelectedTab();// 更新按钮高亮状态
     }
 
-    private void DisablePauseMenu()
+    public void DisablePauseMenu()
     {
         // Destroy any currently dragged items 清除当前拖拽的任何项目 
         pauseMenuInventoryManagement.DestroyCurrentlyDraggedItems();
