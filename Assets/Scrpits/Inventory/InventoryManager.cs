@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class InventoryManager : SingletonMonobehaviour<InventoryManager>
+public class InventoryManager : SingletonMonobehaviour<InventoryManager>,ISaveable
 {
+    private UIInventoryBar inventoryBar;
+
     private Dictionary<int,ItemDetails> itemDetailsDictionary;
 
     private int[] selectedInventoryItem;// the index of the array is the inventory list, and the value is the item code,数组的索引是库存清单，其值是物品代码。
@@ -15,6 +17,13 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
     // 数组的索引是库存列表（来自InventoryLocation枚举），其值是该库存列表的容量。
 
     [SerializeField]private SO_ItemList ItemList=null;
+
+    private string _iSaveableUniqueID;
+
+    public string ISaveableUniqueID { get { return _iSaveableUniqueID; } set { _iSaveableUniqueID = value; } }
+
+    private GameObjectSave _gameObjectSave;
+    public GameObjectSave GameObjectSave { get { return _gameObjectSave; } set { _gameObjectSave = value; } }
 
 
     protected override void Awake()
@@ -35,8 +44,27 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         {
             selectedInventoryItem[i] = -1;
         }
-
+        // Get unique ID for gameobject and create save data object 获取游戏对象的唯一ID并创建保存数据对象
+        ISaveableUniqueID = GetComponent<GenerateGUID>().GUID;
+        GameObjectSave = new GameObjectSave();
     }
+
+    private void OnDisable()
+    {
+        ISaveableDeregister();
+    }
+
+    private void OnEnable()
+    {
+        ISaveableRegister();
+    }
+
+    private void Start()
+    {
+        inventoryBar = FindObjectOfType<UIInventoryBar>();
+    }
+
+    
 
     private void CreateInventoryLists()
     {
@@ -282,6 +310,87 @@ public class InventoryManager : SingletonMonobehaviour<InventoryManager>
         }
         return itemTypeDescription;
     }
+
+    public void ISaveableRegister()
+    {
+        SaveLoadManager.Instance.iSaveableObjectList.Add(this);
+    }
+
+    public void ISaveableDeregister()
+    {
+        SaveLoadManager.Instance.iSaveableObjectList.Remove(this);
+    }
+
+
+    public GameObjectSave ISaveableSave()
+    {
+        // 创建新的场景保存对象
+        SceneSave sceneSave = new SceneSave();
+
+        // 清理旧的持久化场景数据
+        GameObjectSave.sceneData.Remove(Settings.PersistentScene);
+
+        // 保存库存物品列表数组
+        sceneSave.listInvItemArray = inventoryLists;
+
+        // 保存库存容量数组到字典中
+        sceneSave.intArrayDictionary = new Dictionary<string, int[]>();
+        sceneSave.intArrayDictionary.Add("inventoryListCapacityArray", inventoryListCapacityIntArray);
+
+        // 将场景数据添加到游戏对象保存中
+        GameObjectSave.sceneData.Add(Settings.PersistentScene, sceneSave);
+
+        return GameObjectSave;
+    }
+
+
+
+    public void ISaveableLoad(GameSave gameSave)
+    {
+        // 根据唯一ID查找对应的存档数据
+        if (gameSave.gameObjectData.TryGetValue(ISaveableUniqueID, out GameObjectSave gameObjectSave))
+        {
+            GameObjectSave = gameObjectSave;
+
+            // 从持久化场景中获取库存数据
+            if (gameObjectSave.sceneData.TryGetValue(Settings.PersistentScene, out SceneSave sceneSave))
+            {
+                // 恢复库存物品列表
+                if (sceneSave.listInvItemArray != null)
+                {
+                    inventoryLists = sceneSave.listInvItemArray;
+
+                    // 触发库存更新事件，通知其他系统
+                    for (int i = 0; i < (int)InventoryLocation.count; i++)
+                    {
+                        EventHandler.CallInventoryUpdatedEvent((InventoryLocation)i, inventoryLists[i]);
+                    }
+
+                    // 清理玩家携带的物品状态
+                    Player.Instance.ClearCarriedItem();
+                    inventoryBar.ClearHighlightOnInventorySlots();
+                }
+
+                // 恢复库存容量数据
+                if (sceneSave.intArrayDictionary != null && sceneSave.intArrayDictionary.TryGetValue("inventoryListCapacityArray", out int[] inventoryCapacityArray))
+                {
+                    inventoryListCapacityIntArray = inventoryCapacityArray;
+                }
+            }
+        }
+    }
+ 
+
+    public void ISaveableStoreScene(string sceneName)
+    {
+        // Nothing required here since the inventory manager is on a persistent scene;
+    }
+
+    public void ISaveableRestoreScene(string sceneName)
+    {
+        // Nothing required here since the inventory manager is on a persistent scene;
+    }
+
 
     //Remove an item from the inventory, and create a game object at the position it was dropped从库存中移除一个物品，并在其被丢弃的位置创建一个游戏对象
     public void RemoveItem(InventoryLocation inventoryLocation, int itemCode)

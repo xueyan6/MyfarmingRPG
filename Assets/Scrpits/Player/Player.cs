@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
-public class Player : SingletonMonobehaviour<Player>
+public class Player : SingletonMonobehaviour<Player>,ISaveable
 {
     private WaitForSeconds afterUseToolAnimationPause;
     private WaitForSeconds afterLiftToolAnimationPause;
@@ -65,10 +67,13 @@ public class Player : SingletonMonobehaviour<Player>
 
 
     private bool _playerInputIsDisable = false;
-    public bool PlayerInputIsDisabled
-    {
-        get => _playerInputIsDisable; set => _playerInputIsDisable = value;
-    }
+    public bool PlayerInputIsDisabled{get => _playerInputIsDisable; set => _playerInputIsDisable = value;}
+
+    private string _iSaveableUniqueID;
+    public string ISaveableUniqueID { get { return _iSaveableUniqueID; } set { _iSaveableUniqueID = value; } }
+
+    private GameObjectSave _gameObjectSave;
+    public GameObjectSave GameObjectSave { get { return _gameObjectSave; } set { _gameObjectSave = value; } }
 
     protected override void Awake()
     {
@@ -84,12 +89,18 @@ public class Player : SingletonMonobehaviour<Player>
         // Initialise character attribute list初始化字符属性列表
         characterAttributeCustomisationList = new List<CharacterAttribute>();
 
+        // Get unique ID for gameobject and create save data object 获取游戏对象的唯一ID并创建保存数据对象
+        ISaveableUniqueID = GetComponent<GenerateGUID>().GUID;
+
+        GameObjectSave = new GameObjectSave();
+
         //get reference to main camera获取主摄像头的引用
         mainCamera = Camera.main;
     }
 
     private void OnDisable()
     {
+        ISaveableDeregister();
         EventHandler.BeforeSceneUnloadFadeOutEvent -= DisablePlayerInputAndResetMovement;
         EventHandler.AfterSceneLoadFadeInEvent -= EnablePlayerInput;
     }
@@ -97,6 +108,7 @@ public class Player : SingletonMonobehaviour<Player>
 
     private void OnEnable()
     {
+        ISaveableRegister();
         EventHandler.BeforeSceneUnloadFadeOutEvent += DisablePlayerInputAndResetMovement;
         EventHandler.AfterSceneLoadFadeInEvent += EnablePlayerInput;
     }
@@ -982,4 +994,144 @@ public class Player : SingletonMonobehaviour<Player>
         return new Vector3(transform.position.x, transform.position.y + Settings.playerCentreYOffset, transform.position.z);
 
     }
+
+    public void ISaveableRegister()
+    {
+        SaveLoadManager.Instance.iSaveableObjectList.Add(this); // 将当前对象注册到存档管理器的可存档对象列表中
+    }
+
+    public void ISaveableDeregister()
+    {
+        SaveLoadManager.Instance.iSaveableObjectList.Remove(this); // 从存档管理器的可存档对象列表中注销当前对象
+    }
+
+    public GameObjectSave ISaveableSave()
+    {
+        // 如果游戏对象在持久化场景中已有存档数据，先删除旧的存档数据
+        GameObjectSave.sceneData.Remove(Settings.PersistentScene);
+
+        // 创建新的场景保存对象，用于存储当前游戏状态
+        SceneSave sceneSave = new SceneSave();
+
+        // 初始化Vector3序列化字典，用于存储三维坐标数据（如位置、旋转等）
+        sceneSave.vector3Dictionary = new Dictionary<string, Vector3Serializable>();
+
+        // 初始化字符串字典，用于存储文本类型的数据
+        sceneSave.stringDictionary = new Dictionary<string, string>();
+
+        // 将玩家当前位置转换为可序列化的Vector3格式
+        Vector3Serializable vector3Serializable = new Vector3Serializable(transform.position.x, transform.position.y, transform.position.z);
+        // 将玩家位置数据添加到Vector3字典中，键为"playerPosition"
+        sceneSave.vector3Dictionary.Add("playerPosition", vector3Serializable);
+
+        // 将当前激活的场景名称添加到字符串字典中
+        sceneSave.stringDictionary.Add("currentScene", SceneManager.GetActiveScene().name);
+
+        // 将玩家当前朝向转换为字符串并添加到字典中
+        sceneSave.stringDictionary.Add("playerDirection", PlayerDirection.ToString());
+
+        // 将场景保存数据添加到游戏对象保存数据中，关联到持久化场景
+        GameObjectSave.sceneData.Add(Settings.PersistentScene, sceneSave);
+
+        // 返回包含所有存档数据的游戏对象保存实例
+        return GameObjectSave;
+    }
+
+    public void ISaveableLoad(GameSave gameSave)
+    {
+        // 尝试从游戏存档数据中获取当前对象的唯一ID对应的存档数据
+        if (gameSave.gameObjectData.TryGetValue(ISaveableUniqueID, out GameObjectSave gameObjectSave))
+        {
+            // 从游戏对象存档数据中获取持久化场景的存档信息
+            if (gameObjectSave.sceneData.TryGetValue(Settings.PersistentScene, out SceneSave sceneSave))
+            {
+                // 检查Vector3字典是否存在且不为空，然后尝试获取玩家位置数据
+                if (sceneSave.vector3Dictionary != null && sceneSave.vector3Dictionary.TryGetValue("playerPosition", out Vector3Serializable playerPosition))
+                {
+                    // 将从存档中读取的玩家位置数据应用到当前游戏对象的transform上
+                    transform.position = new Vector3(playerPosition.x, playerPosition.y, playerPosition.z);
+                }
+
+                // 检查字符串字典是否存在且不为空
+                if (sceneSave.stringDictionary != null)
+                {
+                    // 从字符串字典中获取玩家所在的场景名称
+                    if (sceneSave.stringDictionary.TryGetValue("currentScene", out string currentScene))
+                    {
+                        // 通过场景控制器淡入淡出并加载指定的场景，同时保持玩家位置
+                        SceneControllerManager.Instance.FadeAndLoadScene(currentScene, transform.position);
+                    }
+
+                    // 从字符串字典中获取玩家朝向信息
+                    if (sceneSave.stringDictionary.TryGetValue("playerDirection", out string playerDir))
+                    {
+                        // 尝试将字符串形式的朝向解析为Direction枚举类型
+                        bool playerDirFound = Enum.TryParse<Direction>(playerDir, true, out Direction direction);
+
+                        // 如果解析成功，更新玩家朝向并设置相应的动画状态
+                        if (playerDirFound)
+                        {
+                            PlayerDirection = direction; // 更新玩家朝向属性
+                            SetPlayerDirection(PlayerDirection); // 调用方法设置玩家朝向相关的动画和状态
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void ISaveableStoreScene(string sceneName)
+    {
+        // 由于玩家位于持久化场景中，不需要特别处理场景存储
+        // 此方法为空实现，因为玩家的数据已经在持久化场景中处理
+    }
+
+    public void ISaveableRestoreScene(string sceneName)
+    {
+        // 由于玩家位于持久化场景中，不需要特别处理场景恢复
+        // 此方法为空实现，因为玩家的数据恢复已经在ISaveableLoad中处理
+    }
+
+    private void SetPlayerDirection(Direction playerDirection)
+    {
+        // 根据玩家朝向设置相应的动画状态和移动参数
+        switch (playerDirection)
+        {
+            case Direction.Up:
+                // 设置玩家朝上的闲置动画状态
+                // 通过事件处理器调用移动事件，传入大量布尔参数控制各种游戏状态
+                // 最后一个true参数表示激活朝上的闲置动画触发器
+                EventHandler.CallMovementEvent(0f, 0f, false, false, false, false, ToolEffect.None, false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false, true, false, false, false);
+                break;
+
+            case Direction.Down:
+                // 设置玩家朝下的闲置动画状态
+                // 参数结构与上面类似，但激活的是朝下的闲置动画触发器
+                EventHandler.CallMovementEvent(0f, 0f, false, false, false, false, ToolEffect.None, false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false, false, true, false, false);
+                break;
+
+            case Direction.Left:
+                // 设置玩家朝左的闲置动画状态
+                EventHandler.CallMovementEvent(0f, 0f, false, false, false, false, ToolEffect.None, false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false, false, false, true, false);
+                break;
+
+            case Direction.Right:
+                // 设置玩家朝右的闲置动画状态
+                EventHandler.CallMovementEvent(0f, 0f, false, false, false, false, ToolEffect.None, false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false, false, false, false, true);
+                break;
+
+            default:
+                // 默认情况下设置玩家朝下的闲置动画状态
+                // 这是安全回退，确保即使遇到未知朝向也有合理的默认行为
+                EventHandler.CallMovementEvent(0f, 0f, false, false, false, false, ToolEffect.None, false, false, false, false, false, false, false, false,
+                    false, false, false, false, false, false, false, false, false, true, false, false);
+                break;
+        }
+    }
+
+
 }
