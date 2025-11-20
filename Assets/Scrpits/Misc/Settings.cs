@@ -3,9 +3,6 @@ using UnityEngine;
 
 public static class Settings 
 {
-    //Scene
-    public const string PersistentScene = "PersistentScene";
-
     //Obscuring Item Fading-ObscuringItemFader遮蔽项淡出效果-遮蔽项淡出器
     public const float fadeInSeconds = 0.25f;
     public const float fadeOutSeconds = 0.35f;

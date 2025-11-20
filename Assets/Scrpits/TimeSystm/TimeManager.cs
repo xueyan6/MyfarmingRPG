@@ -1,8 +1,9 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class TimeManager : SingletonMonobehaviour<TimeManager>,ISaveable
+public class TimeManager : SingletonMonobehaviour<TimeManager>
 {
     // 游戏时间变量初始化
     private int gameYear = 1;// 游戏当前年份（初始值1）
@@ -16,46 +17,6 @@ public class TimeManager : SingletonMonobehaviour<TimeManager>,ISaveable
     // 游戏时钟控制变量
     private bool gameClockPaused = false;// 是否暂停时钟
     private float gameTick = 0f;// 游戏时间累积
-
-    private string _iSaveableUniqueID;
-    public string ISaveableUniqueID { get { return _iSaveableUniqueID; } set { _iSaveableUniqueID = value; } }
-
-    private GameObjectSave _gameObjectSave;
-    public GameObjectSave GameObjectSave { get { return _gameObjectSave; } set { _gameObjectSave = value; } }
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        ISaveableUniqueID = GetComponent<GenerateGUID>().GUID;
-        GameObjectSave = new GameObjectSave();
-    }
-
-    private void OnEnable()
-    {
-        ISaveableRegister();
-
-        EventHandler.BeforeSceneUnloadEvent += BeforeSceneUnloadFadeOut;
-        EventHandler.AfterSceneLoadEvent += AfterSceneLoadFadeIn;
-    }
-
-    private void OnDisable()
-    {
-        ISaveableDeregister();
-
-        EventHandler.BeforeSceneUnloadEvent -= BeforeSceneUnloadFadeOut;
-        EventHandler.AfterSceneLoadEvent -= AfterSceneLoadFadeIn;
-    }
-
-    private void BeforeSceneUnloadFadeOut()
-    {
-        gameClockPaused = true;
-    }
-
-    private void AfterSceneLoadFadeIn()
-    {
-        gameClockPaused = false;
-    }
 
     private void Start()
     {
@@ -191,143 +152,6 @@ public class TimeManager : SingletonMonobehaviour<TimeManager>,ISaveable
         {
             UpdateGameSecond();
         }
-    }
-
-    public void ISaveableRegister()
-    {
-        SaveLoadManager.Instance.iSaveableObjectList.Add(this);
-    }
-
-    public void ISaveableDeregister()
-    {
-        SaveLoadManager.Instance.iSaveableObjectList.Remove(this);
-    }
-
-    public GameObjectSave ISaveableSave()
-    {
-        // 从游戏对象的存档数据中移除旧的持久化场景数据，避免重复
-        GameObjectSave.sceneData.Remove(Settings.PersistentScene);
-
-        // 创建一个新的场景保存对象，用于存储当前游戏时间状态
-        SceneSave sceneSave = new SceneSave();
-
-        // 初始化一个整数类型的字典，用于存储游戏时间的数值部分
-        sceneSave.intDictionary = new Dictionary<string, int>();
-
-        // 初始化一个字符串类型的字典，用于存储游戏时间的文本和枚举部分
-        sceneSave.stringDictionary = new Dictionary<string, string>();
-
-        // 将当前的游戏年份存入整数字典，键为"gameYear"
-        sceneSave.intDictionary.Add("gameYear", gameYear);
-        // 将当前的游戏天数存入整数字典，键为"gameDay"
-        sceneSave.intDictionary.Add("gameDay", gameDay);
-        // 将当前的游戏小时数存入整数字典，键为"gameHour"
-        sceneSave.intDictionary.Add("gameHour", gameHour);
-        // 将当前的游戏分钟数存入整数字典，键为"gameMinute"
-        sceneSave.intDictionary.Add("gameMinute", gameMinute);
-        // 将当前的游戏秒数存入整数字典，键为"gameSecond"
-        sceneSave.intDictionary.Add("gameSecond", gameSecond);
-
-        // 将当前的游戏星期几存入字符串字典，键为"gameDayOfWeek"
-        sceneSave.stringDictionary.Add("gameDayOfWeek", gameDayOfWeek);
-        // 将当前的游戏季节（枚举类型）转换为字符串后存入字符串字典，键为"gameSeason"
-        sceneSave.stringDictionary.Add("gameSeason", gameSeason.ToString());
-
-        // 将包含时间数据的场景保存对象添加到游戏对象的存档数据中，关联到持久化场景
-        GameObjectSave.sceneData.Add(Settings.PersistentScene, sceneSave);
-
-        // 返回包含所有时间存档数据的游戏对象保存实例
-        return GameObjectSave;
-    }
-
-    public void ISaveableLoad(GameSave gameSave)
-    {
-        // 尝试从游戏存档数据中根据当前对象的唯一ID获取对应的存档数据
-        if (gameSave.gameObjectData.TryGetValue(ISaveableUniqueID, out GameObjectSave gameObjectSave))
-        {
-            // 将从存档中获取的游戏对象保存数据赋给当前对象
-            GameObjectSave = gameObjectSave;
-
-            // 从游戏对象的存档数据中获取持久化场景的存档信息
-            if (GameObjectSave.sceneData.TryGetValue(Settings.PersistentScene, out SceneSave sceneSave))
-            {
-                // 检查整数字典和字符串字典是否存在且不为空
-                if (sceneSave.intDictionary != null && sceneSave.stringDictionary != null)
-                {
-                    // 从整数字典中尝试获取"gameYear"键对应的值
-                    if (sceneSave.intDictionary.TryGetValue("gameYear", out int savedGameYear))
-                    {
-                        // 将从存档中读取的年份数据应用到当前游戏时间系统中
-                        gameYear = savedGameYear;
-                    }
-
-                    // 从整数字典中尝试获取"gameDay"键对应的值
-                    if (sceneSave.intDictionary.TryGetValue("gameDay", out int savedGameDay))
-                    {
-                        // 恢复游戏天数
-                        gameDay = savedGameDay;
-                    }
-
-                    // 从整数字典中尝试获取"gameHour"键对应的值
-                    if (sceneSave.intDictionary.TryGetValue("gameHour", out int savedGameHour))
-                    {
-                        // 恢复游戏小时数
-                        gameHour = savedGameHour;
-                    }
-
-                    // 从整数字典中尝试获取"gameMinute"键对应的值
-                    if (sceneSave.intDictionary.TryGetValue("gameMinute", out int savedGameMinute))
-                    {
-                        // 恢复游戏分钟数
-                        gameMinute = savedGameMinute;
-                    }
-
-                    // 从整数字典中尝试获取"gameSecond"键对应的值
-                    if (sceneSave.intDictionary.TryGetValue("gameSecond", out int savedGameSecond))
-                    {
-                        // 恢复游戏秒数
-                        gameSecond = savedGameSecond;
-                    }
-
-                    // 从字符串字典中尝试获取"gameDayOfWeek"键对应的值
-                    if (sceneSave.stringDictionary.TryGetValue("gameDayOfWeek", out string savedGameDayOfWeek))
-                    {
-                        // 恢复游戏星期几
-                        gameDayOfWeek = savedGameDayOfWeek;
-                    }
-
-                    // 从字符串字典中尝试获取"gameSeason"键对应的值
-                    if (sceneSave.stringDictionary.TryGetValue("gameSeason", out string savedGameSeason))
-                    {
-                        // 尝试将从存档中读取的字符串形式的季节解析为Season枚举类型
-                        if (Enum.TryParse<Season>(savedGameSeason, out Season season))
-                        {
-                            // 如果解析成功，更新当前游戏季节
-                            gameSeason = season;
-                        }
-                    }
-
-                    // 重置游戏内部计时器（tick）为0，确保时间同步
-                    gameTick = 0f;
-
-                    // 调用事件处理器，触发游戏时间前进事件
-                    // 该事件会通知游戏内其他系统时间已更新，需要同步刷新相关状态
-                    EventHandler.CallAdvanceGameMinuteEvent(gameYear, gameSeason, gameDay, gameDayOfWeek, gameHour, gameMinute, gameSecond);
-
-                    // 刷新游戏内时钟显示，确保UI与数据一致
-                }
-            }
-        }
-    }
-
-    public void ISaveableStoreScene(string sceneName)
-    {
-        // Nothing required here since Time Manager is running on the persistent scene
-    }
-
-    public void ISaveableRestoreScene(string sceneName)
-    {
-        // Nothing required here since Time Manager is running on the persistent scene
     }
 
 }
