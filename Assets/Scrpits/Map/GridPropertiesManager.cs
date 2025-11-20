@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(GenerateGUID))]
@@ -666,6 +667,20 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
         SaveLoadManager.Instance.iSaveableObjectList.Remove(this);
     }
 
+    public void ISaveableLoad(GameSave gameSave)   // 一个具体类对ISaveableLoad接口方法的实现
+    {
+        // 尝试从总的游戏存档（gameSave）中，根据当前对象的唯一ID（ISaveableUniqueID）查找其对应的存档数据
+        if (gameSave.gameObjectData.TryGetValue(ISaveableUniqueID, out GameObjectSave gameObjectSave))
+        {
+            GameObjectSave = gameObjectSave;       // 如果找到了，就将找到的存档数据（gameObjectSave）赋给当前对象的一个属性（GameObjectSave）进行暂存
+
+            // 调用另一个方法（ISaveableRestoreScene），并将当前场景的名称作为参数传入
+            // 这个方法负责具体解析GameObjectSave中的数据，并应用到当前游戏对象的各个组件上（如位置、血量、状态等），完成数据的最终加载和状态恢复
+            ISaveableRestoreScene(SceneManager.GetActiveScene().name);
+        }
+        // 如果没有在存档中找到对应ID的数据，则什么都不做（该对象可能是在新游戏中首次出现）
+    }
+
     public void ISaveableRegister()
     {
         SaveLoadManager.Instance.iSaveableObjectList.Add(this);
@@ -715,6 +730,15 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
 
         }
     }
+
+    public GameObjectSave ISaveableSave()          // 一个具体类对ISaveableSave接口方法的实现
+    {
+        // 调用方法（ISaveableStoreScene）来收集当前对象在当前场景下的状态数据（如位置、血量等），并将其存储到GameObjectSave属性中
+        ISaveableStoreScene(SceneManager.GetActiveScene().name);
+
+        return GameObjectSave;                     // 将已经填充好数据的GameObjectSave对象返回给存档系统，由系统将其存入GameSave字典中
+    }
+
 
     public void ISaveableStoreScene(string sceneName)
     {
