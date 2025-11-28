@@ -661,6 +661,40 @@ public class GridPropertiesManager : SingletonMonobehaviour<GridPropertiesManage
     }
 
 
+    // for sceneName this method returns a Vector2Int with the grid dimensions for that scene, or Vector2Int.zero if scene not found
+    //对于场景名称，此方法返回一个包含该场景网格尺寸的Vector2Int对象，若未找到场景则返回Vector2Int.zero。
+    public bool GetGridDimensions(SceneName sceneName, out Vector2Int gridDimensions, out Vector2Int gridOrigin)
+    {
+        // 初始化输出参数：gridDimensions和gridOrigin为Vector2Int类型，初始值设为(0,0)
+        gridDimensions = Vector2Int.zero;
+        gridOrigin = Vector2Int.zero;
+
+        // 遍历场景配置数组（so_gridPropertiesArray），查找对应场景的网格属性
+        foreach (SO_GridProperties so_GridProperties in so_gridPropertiesArray)
+        {
+            // 若当前场景配置的场景名与传入的sceneName匹配
+            if (so_GridProperties.sceneName == sceneName)
+            {
+                // 赋值网格尺寸：x为宽度、y为高度
+                gridDimensions.x = so_GridProperties.gridWidth;
+                gridDimensions.y = so_GridProperties.gridHeight;
+
+                // 赋值网格原点：x为原点X坐标、y为原点Y坐标
+                gridOrigin.x = so_GridProperties.originX;
+                gridOrigin.y = so_GridProperties.originY;
+
+                // 找到匹配场景后，返回true表示“成功获取网格信息”
+                return true;
+            }
+        }
+
+        // 遍历完所有场景配置后仍未找到匹配项，返回false表示“未找到对应场景的网格信息”
+        return false;
+    }
+
+
+
+
     //保存系统接口实现
     public void ISaveableDeregister()
     {
