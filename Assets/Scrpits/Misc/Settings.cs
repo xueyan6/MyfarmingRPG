@@ -10,6 +10,7 @@ public static class Settings
 
     // Tilemap
     public const float gridCellSize = 1f; // grid cell size in unity units网格单元尺寸in unity units
+    public const float gridCellDiagonalSize = 1.41f;//diagonal distance between unity cell centres unity网格单元对角线距离
     public static Vector2 cursorSize = Vector2.one;
 
     //Player
@@ -25,10 +26,19 @@ public static class Settings
     public static float afterLiftToolAnimationPause = 0.4f;
     public static float afterPickAnimationPause = 0.2f;
 
+    //NPC Movement 
+    public static float pixelSize = 0.0625f;//用于测试NPC移动时是否在距离目标位置一个像素的距离内
+
     //Inventory
     public static int playerInitialInventoryCapacity = 24;//玩家初始背包容量
     public static int playerMaximumInventoryCapacity = 48;//玩家最大背包容量
 
+    // NPC Animation ParametersNPC动画参数
+    public static int walkUp;
+    public static int walkDown;
+    public static int walkLeft;
+    public static int walkRight;
+    public static int eventAnimation;
 
     //Player Animation Parameters玩家动画参数
     public static int xInput;
@@ -79,6 +89,13 @@ public static class Settings
     //static constructor静态构造函数
     static Settings()
     {
+        // NPC Animation parameters NPC动画参数
+        walkUp = Animator.StringToHash("walkUp");
+        walkDown = Animator.StringToHash("walkDown");
+        walkLeft = Animator.StringToHash("walkLeft");
+        walkRight = Animator.StringToHash("walkRight");
+        eventAnimation = Animator.StringToHash("eventAnimation");
+
         //Player Animation Parameters玩家动画参数
         xInput = Animator.StringToHash("xInput");
         yInput = Animator.StringToHash("yInput");
