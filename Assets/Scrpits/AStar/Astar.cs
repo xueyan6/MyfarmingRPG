@@ -22,11 +22,13 @@ public class AStar : MonoBehaviour
 
     private List<Node> openNodeList;  // 开放节点列表，存储待评估的节点，按fCost排序
     private HashSet<Node> closedNodeList;  // 关闭节点集合，存储已评估过的节点，使用HashSet提高查找效率(PS:HashSet用于需要去重或快速查找的数据，不能通过索引来访问元素。
+
     private bool pathFound = false;  // 布尔标志，记录是否成功找到从起点到终点的路径
 
     // 构建路径的主要公共方法：为指定场景从起始网格位置到目标网格位置构建路径
     public bool BuildPath(SceneName sceneName, Vector2Int startGridPosition, Vector2Int endGridPosition, Stack<NPCMovementStep> npcMovementStepStack)
     {
+        pathFound = false;
         // 第一步：从网格属性字典中初始化网格节点
         if (PopulateGridNodesFromGridPropertiesDictionary(sceneName, startGridPosition, endGridPosition))  // 如果网格初始化成功
         {

@@ -117,13 +117,22 @@ public enum HarvestActionEffect
     none
 }
 
+public enum Weather
+{
+    dry,
+    raining,
+    snowing,
+    none,
+    count
+}
+
 public enum Direction
 {
     Left,
     Right,
     Up,
     Down,
-    None
+    none
 }
 
 public enum ItemType
