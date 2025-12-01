@@ -79,14 +79,7 @@ public class TilemapGridProperties : MonoBehaviour
 
     }
 
-    private void Update()
-    {
-        // Only populate in the editor仅在编辑器模式下执行（非运行时）
-        if (!Application.IsPlaying(gameObject))
-        {
-            Debug.Log("DISABLE PROPERTY TILEMAPS");
-        }
-    }
+
 #endif
     //核心功能：
     //该脚本是Unity编辑器扩展工具，专门用于管理Tilemap的网格属性数据

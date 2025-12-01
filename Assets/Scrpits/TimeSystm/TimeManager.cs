@@ -1,6 +1,5 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class TimeManager : SingletonMonobehaviour<TimeManager>
@@ -130,6 +129,13 @@ public class TimeManager : SingletonMonobehaviour<TimeManager>
             default:
                 return "";
         }
+    }
+
+    //用于计算每个移动步骤的时间
+    public TimeSpan GetGameTime()
+    {
+        TimeSpan gameTime = new TimeSpan(gameHour, gameMinute, gameSecond);
+        return gameTime;
     }
 
     /// <summary>
