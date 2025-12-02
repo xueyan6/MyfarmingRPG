@@ -2057,7 +2057,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   observeMovementPenalties: 1
   pathMovementPenalty: 0
-  defaultMovementPenalty: 20
+  defaultMovementPenalty: 0
 --- !u!4 &304887267
 Transform:
   m_ObjectHideFlags: 0
@@ -2087,7 +2087,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcPath: {fileID: 1765890652}
   moveNPC: 0
-  finishPosition: {x: 0, y: 27}
+  sceneName: 1
+  finishPosition: {x: 10, y: 10}
   idleDownAnimationClip: {fileID: 7400000, guid: cb83867c6252b5c4a8e8758697474f88, type: 2}
   eventAnimationClip: {fileID: 7400000, guid: bc72b54e068840044a4b381c76eec014, type: 2}
 --- !u!114 &304887269
@@ -2102,6 +2103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5edf70727ee60544a90e5eb85176877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  so_SceneRoutelist: {fileID: 11400000, guid: 60e3a5f2d130dec47b794d92aadc08ee, type: 2}
   npcArray: []
 --- !u!1 &321724854
 GameObject:
