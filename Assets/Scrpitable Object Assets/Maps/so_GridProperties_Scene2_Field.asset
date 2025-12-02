@@ -10623,3 +10623,23 @@ MonoBehaviour:
       y: 28
     gridBoolProperty: 1
     gridBoolValue: 1
+  - gridCoordinate:
+      x: -1
+      y: -30
+    gridBoolProperty: 4
+    gridBoolValue: 1
+  - gridCoordinate:
+      x: 0
+      y: -30
+    gridBoolProperty: 4
+    gridBoolValue: 1
+  - gridCoordinate:
+      x: 1
+      y: -30
+    gridBoolProperty: 4
+    gridBoolValue: 1
+  - gridCoordinate:
+      x: 2
+      y: -30
+    gridBoolProperty: 4
+    gridBoolValue: 1

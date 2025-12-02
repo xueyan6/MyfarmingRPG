@@ -11,6 +11,8 @@ public static class Settings
     // Tilemap
     public const float gridCellSize = 1f; // grid cell size in unity units网格单元尺寸in unity units
     public const float gridCellDiagonalSize = 1.41f;//diagonal distance between unity cell centres unity网格单元对角线距离
+    public const int maxGridWidth = 99999;//检测到坐标超出边界 → 识别为"最终目的地标记"
+    public const int maxGridHeight = 99999;//而使用日程事件中定义的真实目标坐标（对于非最终目的地，直接使用场景路径中预设的坐标）
     public static Vector2 cursorSize = Vector2.one;
 
     //Player
