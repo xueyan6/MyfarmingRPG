@@ -11762,6 +11762,10 @@ PrefabInstance:
       propertyPath: _gUID
       value: 07fd5d66-f3ca-41e3-9a29-c2bf628ebf06
       objectReference: {fileID: 0}
+    - target: {fileID: 2858343008354075545, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: so_NPCScheduleEventList
+      value: 
+      objectReference: {fileID: 11400000, guid: 8b92101f540f9d5479f1d5217c8f8428, type: 2}
     - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7.68
@@ -12435,6 +12439,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cf76a2b3edd5ec4593342ae539db0f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentWeather: 1
 --- !u!4 &1854944935
 Transform:
   m_ObjectHideFlags: 0
