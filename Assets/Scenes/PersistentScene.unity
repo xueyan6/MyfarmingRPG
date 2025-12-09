@@ -2057,7 +2057,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   observeMovementPenalties: 1
   pathMovementPenalty: 0
-  defaultMovementPenalty: 0
+  defaultMovementPenalty: 20
 --- !u!4 &304887267
 Transform:
   m_ObjectHideFlags: 0
@@ -4564,6 +4564,96 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &585748762
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 688888598}
+    m_Modifications:
+    - target: {fileID: -7715817012044556534, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: npcCurrentScene
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -7715817012044556534, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: npcFacingDirectionAtDestination
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 887379006628893251, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 49ef00cbd4cc69f4a819b72a1a24d352, type: 2}
+    - target: {fileID: 2858343008354075545, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: so_NPCScheduleEventList
+      value: 
+      objectReference: {fileID: 11400000, guid: fa1fb9232b6f5e341bef51b849d9799d, type: 2}
+    - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -4.38
+      objectReference: {fileID: 0}
+    - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.51
+      objectReference: {fileID: 0}
+    - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5989227017225358775, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_Name
+      value: NPC_Cora
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696140526356140395, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_Size.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696140526356140395, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -1512431188337024500, guid: 400e208f8ff6631429ef6ca968c16ad2, type: 3}
+    - target: {fileID: 8696140526356140395, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+--- !u!4 &585748763 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+  m_PrefabInstance: {fileID: 585748762}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &599480903
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5346,6 +5436,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1765890651}
+  - {fileID: 585748763}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &692694833
@@ -11782,6 +11873,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 688888598}
     m_Modifications:
+    - target: {fileID: -7715817012044556534, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: npcCurrentScene
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -7715817012044556534, guid: 8698054908179cd4a93f995d759cf192, type: 3}
+      propertyPath: npcFacingDirectionAtDestination
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 887379006628893251, guid: 8698054908179cd4a93f995d759cf192, type: 3}
       propertyPath: m_Controller
       value: 
@@ -11796,11 +11895,11 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 8b92101f540f9d5479f1d5217c8f8428, type: 2}
     - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.68
+      value: 4.34
       objectReference: {fileID: 0}
     - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -16.53
+      value: 5.53
       objectReference: {fileID: 0}
     - target: {fileID: 2987432667538135819, guid: 8698054908179cd4a93f995d759cf192, type: 3}
       propertyPath: m_LocalPosition.z
