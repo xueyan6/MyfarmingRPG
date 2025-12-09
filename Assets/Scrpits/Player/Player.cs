@@ -1116,13 +1116,13 @@ public class Player : SingletonMonobehaviour<Player>,ISaveable
             case Direction.Left:
                 // ÉèÖÃÍæ¼Ò³¯×óµÄÏĞÖÃ¶¯»­×´Ì¬
                 EventHandler.CallMovementEvent(0f, 0f, false, false, false, false, ToolEffect.None, false, false, false, false, false, false, false, false,
-                    false, false, false, false, false, false, false, false, false, false, true, false);
+                    false, false, false, false, false, false, false, false, false, false, false, true);
                 break;
 
             case Direction.Right:
                 // ÉèÖÃÍæ¼Ò³¯ÓÒµÄÏĞÖÃ¶¯»­×´Ì¬
                 EventHandler.CallMovementEvent(0f, 0f, false, false, false, false, ToolEffect.None, false, false, false, false, false, false, false, false,
-                    false, false, false, false, false, false, false, false, false, false, false, true);
+                    false, false, false, false, false, false, false, false, false, false, true, false);
                 break;
 
             default:
