@@ -167,10 +167,9 @@ public class AStar : MonoBehaviour
         {
             if (sceneSave.gridPropertyDetailsDictionary != null)  // 检查网格属性字典是否为空
             {
-                Vector2Int gridDimensions;  // 网格尺寸（宽度和高度）
-                Vector2Int gridOrigin;  // 网格原点坐标
+               
                 // 获取网格的尺寸和原点信息
-                if (GridPropertiesManager.Instance.GetGridDimensions(sceneName, out gridDimensions, out gridOrigin))
+                if (GridPropertiesManager.Instance.GetGridDimensions(sceneName, out Vector2Int gridDimensions, out Vector2Int gridOrigin))
                 {
                     gridNodes = new GridNodes(gridDimensions.x, gridDimensions.y);  // 根据网格尺寸创建节点网格
                     gridWidth = gridDimensions.x;  // 设置网格宽度

@@ -12,12 +12,12 @@ using UnityEngine.SceneManagement;
 public class NPCMovement : MonoBehaviour
 {
     // 私有字段 - 内部状态管理
-    [HideInInspector] public SceneName npcCurrentScene; // NPC当前所在场景
+    public SceneName npcCurrentScene; // NPC当前所在场景
     [HideInInspector] public SceneName npcTargetScene; // NPC目标场景
     [HideInInspector] public Vector3Int npcCurrentGridPosition; // NPC当前网格坐标
     [HideInInspector] public Vector3Int npcTargetGridPosition; // NPC目标网格坐标
     [HideInInspector] public Vector3 npcTargetWorldPosition; // NPC目标世界坐标
-    [HideInInspector] public Direction npcFacingDirectionAtDestination; // NPC到达目的地时的朝向
+    public Direction npcFacingDirectionAtDestination; // NPC到达目的地时的朝向
                                                                         
     private SceneName npcPreviousMovementStepScene; // 上一步移动的场景
     private Vector3Int npcNextGridPosition; // 下一个网格坐标
