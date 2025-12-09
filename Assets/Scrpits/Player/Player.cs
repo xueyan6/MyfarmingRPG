@@ -20,24 +20,24 @@ public class Player : SingletonMonobehaviour<Player>,ISaveable
     private float yInput;
     private bool isCarrying = false;
     private bool isIdle;
-    private bool isLiftingToolRight;
-    private bool isLiftingToolLeft;
-    private bool isLiftingToolUp;
     private bool isLiftingToolDown;
+    private bool isLiftingToolLeft;
+    private bool isLiftingToolRight;
+    private bool isLiftingToolUp;
     private bool isRunning;
-    private bool isUsingToolRight;
-    private bool isUsingToolLeft;
-    private bool isUsingToolUp;
     private bool isUsingToolDown;
-    private bool isSwingingToolRight;
-    private bool isSwingingToolLeft;
-    private bool isSwingingToolUp;
+    private bool isUsingToolLeft;
+    private bool isUsingToolRight;
+    private bool isUsingToolUp;
     private bool isSwingingToolDown;
+    private bool isSwingingToolLeft;
+    private bool isSwingingToolRight;
+    private bool isSwingingToolUp;
     private bool isWalking;
-    private bool isPickingRight;
-    private bool isPickingLeft;
     private bool isPickingUp;
     private bool isPickingDown;
+    private bool isPickingLeft;
+    private bool isPickingRight;
     private WaitForSeconds liftToolAnimationPause;
     private WaitForSeconds pickAnimationPause;
 
@@ -171,22 +171,22 @@ public class Player : SingletonMonobehaviour<Player>,ISaveable
 
     private void ResetAnimationTrigger()
     {
-        isLiftingToolRight = false;
-        isLiftingToolLeft = false;
-        isLiftingToolUp = false;
-        isLiftingToolDown = false;
-        isUsingToolRight = false;
-        isUsingToolLeft = false;
-        isUsingToolUp = false;
-        isUsingToolDown = false;
-        isSwingingToolRight = false;
-        isSwingingToolLeft = false;
-        isSwingingToolUp = false;
-        isSwingingToolDown = false;
         isPickingRight = false;
         isPickingLeft = false;
         isPickingUp = false;
         isPickingDown = false;
+        isUsingToolRight = false;
+        isUsingToolLeft = false;
+        isUsingToolUp = false;
+        isUsingToolDown = false;
+        isLiftingToolRight = false;
+        isLiftingToolLeft = false;
+        isLiftingToolUp = false;
+        isLiftingToolDown = false;
+        isSwingingToolRight = false;
+        isSwingingToolLeft = false;
+        isSwingingToolUp = false;
+        isSwingingToolDown = false;
         toolEffect = ToolEffect.None;
     }
 
@@ -628,7 +628,7 @@ public class Player : SingletonMonobehaviour<Player>,ISaveable
         yield return useToolAnimationPause;
 
         // After animation pause 动画暂停后 
-        yield return useToolAnimationPause;
+        yield return afterUseToolAnimationPause;
 
         PlayerInputIsDisabled = false;
         playerToolUseDisabled = false;
@@ -685,7 +685,7 @@ public class Player : SingletonMonobehaviour<Player>,ISaveable
         yield return useToolAnimationPause;
 
         // After animation pause动画暂停后
-        yield return afterLiftToolAnimationPause;
+        yield return afterUseToolAnimationPause;
 
         PlayerInputIsDisabled = false;
         playerToolUseDisabled = false;
@@ -758,7 +758,7 @@ public class Player : SingletonMonobehaviour<Player>,ISaveable
             // Define centre point of square which will be used for collision testing定义用于碰撞检测的正方形中心点
             // 碰撞检测区域计算
             // 检测中心点X坐标（玩家位置+方向偏移：当玩家角色位于(0,0)且向右挥动镰刀（作用半径2单位）时，检测中心将计算为(1,0)，这样形成的2x2单位检测框既能完整覆盖右侧2单位范围，又避免左侧无效检测）
-            Vector2 point = new Vector2(GetPlayerCentrePosition().x + playerDirection.x * (equippedItemDetails.itemUseRadius / 2f),
+            Vector2 point = new Vector2(GetPlayerCentrePosition().x + (playerDirection.x * (equippedItemDetails.itemUseRadius / 2f)),
                 GetPlayerCentrePosition().y + playerDirection.y * (equippedItemDetails.itemUseRadius / 2f));// 检测中心点Y坐标
 
             // Define size of the square which will be used for collision testing定义用于碰撞检测的正方形尺寸
@@ -883,7 +883,7 @@ public class Player : SingletonMonobehaviour<Player>,ISaveable
         }
 
         // Trigger Advance Day
-        if (Input.GetKey(KeyCode.G))
+        if (Input.GetKeyDown(KeyCode.G))
         {
             TimeManager.Instance.TestAdvanceGameDay();
         }
