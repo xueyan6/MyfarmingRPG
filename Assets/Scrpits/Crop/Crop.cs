@@ -92,6 +92,12 @@ public class Crop : MonoBehaviour
             }
         }
 
+        // Is there a harvested sound是否存在被收割的声音
+        if (cropDetails.harvestSound != SoundName.none)
+        {
+            AudioManager.Instance.PlaySound(cropDetails.harvestSound);
+        }
+
 
         // Delete crop from grid properties将网格属性中的种子代码重置为-1（空），表示此格子上不再有作物
         gridPropertyDetails.seedItemCode = -1;
