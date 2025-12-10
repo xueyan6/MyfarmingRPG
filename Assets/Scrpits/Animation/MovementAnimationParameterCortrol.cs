@@ -124,8 +124,8 @@ public class MovementAnimationParameterCortrol : MonoBehaviour
 
     }
 
-    private void AnimationEventPlayFootstepSound() 
+    private void AnimationEventPlayFootstepSound()
     {
-
+        AudioManager.Instance.PlaySound(SoundName.effectFootstepHardGround);
     }
 }

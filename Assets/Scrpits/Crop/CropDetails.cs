@@ -24,6 +24,7 @@ public class CropDetails
     public bool isHarvestActionEffect = false; // flag to determine whether there is a harvest action effect标志用于判断是否存在收获动作效果
     public bool spawnCropProducedAtPlayerPosition;//在玩家位置生成作物
     public HarvestActionEffect harvestActionEffect; // the harvest action effect for the crop作物收获动作效果
+    public SoundName harvestSound;//农作物收获声音
 
     [ItemCodeDescription]
     public int[] harvestToolItemCode; // array of item codes for the tools that can harvest or 0 array elements if no tool required可用于采收的工具项码数组，若无需工具则返回0个数组元素
