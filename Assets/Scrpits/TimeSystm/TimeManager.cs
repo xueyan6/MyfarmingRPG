@@ -178,10 +178,13 @@ public class TimeManager : SingletonMonobehaviour<TimeManager>, ISaveable
         return gameTime;
     }
 
-/// <summary>
-/// Advance 1 game minute加速1游戏分钟
-/// </summary>
-public void TestAdvanceGameMinute()
+    public Season GetGameSeason()
+    {
+        return gameSeason;
+    }
+
+    // Advance 1 game minute加速1游戏分钟
+    public void TestAdvanceGameMinute()
     {
         for (int i = 0; i < 60; i++)
         {
