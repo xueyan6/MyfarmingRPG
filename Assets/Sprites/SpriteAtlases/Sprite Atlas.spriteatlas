@@ -65,6 +65,7 @@ SpriteAtlas:
     - 207ad99171e171b418bcaaa396d5a6f6: 21300000
     - aa1fcd9144ccf574985824378256b95c: 21300000
     - 8298ab725cafa93429a58bd3e8273289: 21300000
+    - 90ab3eb28d04d7f4dabf59bc59093402: 21300000
     - 081b5033ea188cb48b5d44b99ab920bc: 21300000
     - 0e9e72533af4a924cb98248a27955a25: 21300000
     - 853ac38383c680342ac7e688bf29b197: 21300504
@@ -93,6 +94,7 @@ SpriteAtlas:
     - 853ac38383c680342ac7e688bf29b197: 21300088
     - 853ac38383c680342ac7e688bf29b197: 21300086
     - 853ac38383c680342ac7e688bf29b197: 21300084
+    - ee997983b9ebec546b30b137d53c3ced: 21300000
     - 2d0dfd935517f7049a9ec156af517511: 4005202913230342895
     - 2d0dfd935517f7049a9ec156af517511: 5613540868099651934
     - 2d0dfd935517f7049a9ec156af517511: -2514537956183521370
@@ -900,6 +902,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 207ad99171e171b418bcaaa396d5a6f6, type: 3}
   - {fileID: 21300000, guid: aa1fcd9144ccf574985824378256b95c, type: 3}
   - {fileID: 21300000, guid: 8298ab725cafa93429a58bd3e8273289, type: 3}
+  - {fileID: 21300000, guid: 90ab3eb28d04d7f4dabf59bc59093402, type: 3}
   - {fileID: 21300000, guid: 081b5033ea188cb48b5d44b99ab920bc, type: 3}
   - {fileID: 21300000, guid: 0e9e72533af4a924cb98248a27955a25, type: 3}
   - {fileID: 21300504, guid: 853ac38383c680342ac7e688bf29b197, type: 3}
@@ -928,6 +931,7 @@ SpriteAtlas:
   - {fileID: 21300088, guid: 853ac38383c680342ac7e688bf29b197, type: 3}
   - {fileID: 21300086, guid: 853ac38383c680342ac7e688bf29b197, type: 3}
   - {fileID: 21300084, guid: 853ac38383c680342ac7e688bf29b197, type: 3}
+  - {fileID: 21300000, guid: ee997983b9ebec546b30b137d53c3ced, type: 3}
   - {fileID: 4005202913230342895, guid: 2d0dfd935517f7049a9ec156af517511, type: 3}
   - {fileID: 5613540868099651934, guid: 2d0dfd935517f7049a9ec156af517511, type: 3}
   - {fileID: -2514537956183521370, guid: 2d0dfd935517f7049a9ec156af517511, type: 3}
@@ -1734,6 +1738,7 @@ SpriteAtlas:
   - Grass1
   - Clock
   - TumbleweedThistle
+  - JackOLantern
   - Sweetcorn
   - PauseScreen9Sprite
   - tools_252
@@ -1762,6 +1767,7 @@ SpriteAtlas:
   - tools_44
   - tools_43
   - tools_42
+  - Light
   - Butch_Portrait_0
   - Butch_Portrait_1
   - Butch_Portrait_2
